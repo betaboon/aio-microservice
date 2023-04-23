@@ -1,0 +1,32 @@
+name: PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.event.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yaml
+    secrets: inherit
+
+  test:
+    uses: ./.github/workflows/test.yaml
+    secrets: inherit
+
+  passed:
+    needs:
+      - lint
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check lint status
+        if: ${{ needs.lint.result != 'success' }}
+        run: exit 1
+      - name: Check test status
+        if: ${{ needs.test.result != 'success' }}
+        run: exit 1
