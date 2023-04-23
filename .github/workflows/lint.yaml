@@ -1,0 +1,58 @@
+name: Lint
+
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          cache: true
+      - name: Install dependencies
+        run: pdm sync -G :all
+      - name: Run lint
+        run: pdm ci-lint
+        env:
+          FROM_REF: origin/${{ github.base_ref }}
+          TO_REF: HEAD
+
+  lint-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          cache: true
+      - name: Install dependencies
+        run: pdm sync -G :all
+      - name: Run lint-commits
+        run: pdm ci-lint-commits
+        env:
+          FROM_REF: origin/${{ github.base_ref }}
+          TO_REF: HEAD
+
+  passed:
+    needs:
+      - lint
+      - lint-commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check lint status
+        if: ${{ needs.lint.result != 'success' }}
+        run: exit 1
+      - name: Check lint-commits status
+        if: ${{ needs.lint-commits.result != 'success' }}
+        run: exit 1

@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  workflow_call:
+
+jobs:
+  prepare:
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          cache: true
+      - name: Install dependencies
+        run: pdm sync -G :all
+      - id: version
+        name: Generate version
+        run: echo "version=$(pdm ci-version)" >> "$GITHUB_OUTPUT"
+      - name: Generate changelog
+        run: pdm ci-changelog | tee CHANGELOG.md
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: changelog
+          path: ${{ github.workspace }}/CHANGELOG.md
+          retention-days: 1
+          if-no-files-found: error
+      - name: Generate job summary
+        run: |
+          echo "### Version: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat CHANGELOG.md >> $GITHUB_STEP_SUMMARY
+
+  build:
+    needs: prepare
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+        python-version:
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          cache: true
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: pdm sync -G :all
+      - name: Run build
+        run: pdm build
+        env:
+          PDM_BUILD_SCM_VERSION: ${{ needs.prepare.outputs.version }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: ${{ github.workspace }}/dist
+          retention-days: 1
+          if-no-files-found: error
+
+  publish:
+    needs:
+      - prepare
+      - build
+    permissions:
+      id-token: write
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        id: download
+        uses: actions/download-artifact@v3
+      - name: Publish GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ needs.prepare.outputs.version }}
+          bodyFile: ${{ steps.download.outputs.download-path }}/changelog/CHANGELOG.md
+          artifacts: ${{ steps.download.outputs.download-path }}/dist/*
+      - name: Publish PyPI Release
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
+          packages-dir: ${{ steps.download.outputs.download-path }}/dist/

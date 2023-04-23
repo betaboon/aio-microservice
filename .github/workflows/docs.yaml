@@ -1,0 +1,40 @@
+name: Docs
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v3
+        with:
+          cache: true
+      - name: Install dependencies
+        run: pdm sync -G :all
+      - name: Run build
+        run: pdm docs-build
+      - name: Upload artifacts
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ${{ github.workspace }}/build/docs
+
+  publish:
+    needs: build
+    permissions:
+      id-token: write
+      pages: write
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish GitHub Pages
+        id: publish
+        uses: actions/deploy-pages@v2
