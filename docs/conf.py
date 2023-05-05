@@ -15,15 +15,41 @@ author = "betaboon"
 
 extensions = [
     # stock extensions
-    "sphinx.ext.autosummary",
     "sphinx.ext.autodoc",
-    "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    # "sphinx.ext.extlinks",
     # third party extensions
-    "sphinx_autodoc_typehints",
-    "sphinx_copybutton",
+    "autoapi.extension",
     "myst_parser",
+    "sphinx_copybutton",
+    "sphinx_design",
 ]
+
+
+# -- Options for intersphinx -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#configuration
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
+}
+
+# -- Options for autodoc -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#configuration
+
+autodoc_typehints = "description"
+autodoc_class_signature = "separated"
+
+# -- Options for autoapi -----------------------------------------------------
+
+autoapi_type = "python"
+autoapi_root = "api"
+autoapi_add_toctree_entry = False
+
+autoapi_dirs = ["../aio_microservice"]
+autoapi_options = ["members", "show-inheritance", "imported-members", "undoc-members"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
