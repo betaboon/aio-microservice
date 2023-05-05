@@ -20,4 +20,5 @@ hide-toc: true
 installation
 quickstart
 license
+API Reference <api/aio_microservice/index>
 ```

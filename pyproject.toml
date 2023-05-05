@@ -44,8 +44,8 @@ dev = [
 docs = [
     "furo>=2023.3.27",
     "myst-parser>=1.0.0",
+    "sphinx-autoapi>=2.1.0",
     "sphinx-autobuild>=2021.3.14",
-    "sphinx-autodoc-typehints>=1.23.0",
     "sphinx-copybutton>=0.5.2",
     "sphinx>=6.1.3",
 ]
@@ -58,7 +58,7 @@ install-git-hooks = "pre-commit install --install-hooks"
 lint = "pre-commit run --all-files"
 test = "pytest"
 docs-build = "sphinx-build docs build/docs"
-docs-serve = "sphinx-autobuild docs build/docs"
+docs-serve = "sphinx-autobuild --watch aio_microservice docs build/docs"
 
 [tool.pdm.scripts.ci-lint]
 cmd = [
@@ -98,13 +98,15 @@ strict = true
 
 [tool.ruff]
 select = [
+  "D",  # pydocstyle
   "E",  # pycodestyle
-  "W",  # pycodestyle
   "F",  # pyflakes
   "I",  # isort
+  "W",  # pycodestyle
 ]
 ignore = [
   "E501",  # line-too-long, handled by black
+  "D100",  # undocumented-public-module
 ]
 
 [tool.ruff.per-file-ignores]
@@ -112,6 +114,9 @@ ignore = [
 
 [tool.ruff.isort]
 combine-as-imports = true
+
+[tool.ruff.pydocstyle]
+convention = "google"
 
 [tool.pytest.ini_options]
 
