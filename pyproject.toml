@@ -174,7 +174,7 @@ cmd = "sphinx-build docs docs/_build"
 help = "Build and serve docs"
 cmd = "sphinx-autobuild --watch aio-microservice docs docs/_build"
 
-[tool.pdm.scripts._ci-lint]
+[tool.pdm.scripts._ci-lint-code]
 cmd = [
   "pre-commit", "run",
   "--show-diff-on-failure",
