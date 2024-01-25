@@ -7,32 +7,90 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "AIO Microservice"
-copyright = "2023, betaboon"
+copyright = "2024, betaboon"  # noqa: A001
 author = "betaboon"
+
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
     # stock extensions
-    "sphinx.ext.autosummary",
     "sphinx.ext.autodoc",
-    "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
     # third party extensions
-    "sphinx_autodoc_typehints",
-    "sphinx_copybutton",
+    "autoapi.extension",
     "myst_parser",
+    "sphinx_copybutton",
 ]
+
+
+# -- Options for intersphinx -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#configuration
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
+}
+
+
+# -- Options for autodoc -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#configuration
+
+autodoc_class_signature = "separated"
+autodoc_typehints = "description"
+autodoc_typehints_format = "short"
+
+
+# -- Options for autoapi -----------------------------------------------------
+# https://sphinx-autoapi.readthedocs.io/en/latest/reference/config.html
+
+autoapi_type = "python"
+autoapi_add_toctree_entry = False
+
+autoapi_root = "api"
+autoapi_dirs = ["../aio_microservice"]
+
+autoapi_options = [
+    "members",
+    "undoc-members",
+    "show-inheritance",
+    "show-module-summary",
+    "special-members",
+    "imported-members",
+]
+
+
+# -- Options for myst-parser -------------------------------------------------
+# https://myst-parser.readthedocs.io/en/latest/configuration.html
+
+myst_enable_extensions = [
+    "amsmath",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "fieldlist",
+    "html_admonition",
+    "html_image",
+    "replacements",
+    "smartquotes",
+    "strikethrough",
+    "substitution",
+    "tasklist",
+]
+
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "furo"
-html_title = "AIO Microservice"
 language = "en"
 
 html_static_path = ["_static"]
+
+html_theme = "furo"
+html_title = "AIO Microservice"
 
 html_theme_options = {
     "source_repository": "https://github.com/betaboon/aio-microservice",

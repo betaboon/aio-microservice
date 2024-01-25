@@ -1,17 +1,16 @@
-[![ci](https://img.shields.io/github/actions/workflow/status/betaboon/aio-microservice/ci.yaml?branch=main&style=for-the-badge)](https://github.com/betaboon/aio-microservice/actions/?query=branch%3Amain+workflow%3Aci)
-[![pypi](https://img.shields.io/pypi/v/aio-microservice?style=for-the-badge)](https://pypi.org/project/aio-microservice/)
-[![pyversions](https://img.shields.io/pypi/pyversions/aio-microservice?style=for-the-badge)](https://github.com/betaboon/aio-microservice)
-[![license](https://img.shields.io/github/license/betaboon/aio-microservice?style=for-the-badge)](https://github.com/betaboon/aio-microservice/LICENSE)
-
----
-
-**Documentation**: <a href="https://betaboon.github.io/aio-microservice" target="_blank">https://betaboon.github.io/aio-microservice</a>
-
-**Source Code**: <a href="https://github.com/betaboon/aio-microservice" target="_blank">https://github.com/betaboon/aio-microservice</a>
-
----
-
 # AIO Microservice
+
+[![ci](https://img.shields.io/github/actions/workflow/status/betaboon/aio-microservice/ci.yaml?branch=main&logo=github&logoColor=white&style=for-the-badge)](https://github.com/betaboon/aio-microservice/actions/?query=branch%3Amain+workflow%3Aci)
+
+[![version](https://img.shields.io/pypi/v/aio-microservice?logo=pypi&logoColor=white&style=for-the-badge)](https://pypi.org/project/aio-microservice)
+[![pyversions](https://img.shields.io/pypi/pyversions/aio-microservice?logo=python&logoColor=white&style=for-the-badge)](https://github.com/betaboon/aio-microservice)
+[![license](https://img.shields.io/pypi/l/aio-microservice?style=for-the-badge)](https://github.com/betaboon/aio-microservice/LICENSE)
+
+[![docs](https://img.shields.io/badge/docs-blue?label=sphinx&logo=sphinx&logoColor=white&style=for-the-badge)](https://betaboon.github.io/aio-microservice)
+[![pdm](https://img.shields.io/badge/managed-blue?style=for-the-badge&logo=pdm&logoColor=white&label=pdm&color=%237e56c2)](https://pdm-project.org)
+[![ruff](https://img.shields.io/badge/formatted-blue?style=for-the-badge&logo=ruff&logoColor=white&label=ruff&color=%23d7ff64)](https://astral.sh/ruff)
+
+## What is AIO Microservice?
 <!-- start description -->
 
 A library to create microservices.
@@ -20,8 +19,6 @@ A library to create microservices.
 
 ## Features
 <!-- start features -->
-
-- TODO
 
 <!-- end features -->
 
