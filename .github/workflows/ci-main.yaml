@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - api-draft
+      - api-draft  # TODO remove when done, also change pages-protection settings
 
 concurrency:
   group: ${{ github.event.number || github.run_id }}

@@ -32,6 +32,7 @@ jobs:
           push: false
           vcs_release: false
       - name: Set changelog output
+        if: steps.release.outputs.released == 'true'
         id: changelog
         run: |
           {
