@@ -5,28 +5,29 @@ on:
 
 jobs:
   test:
+    name: Run tests
     strategy:
       matrix:
         os:
           - ubuntu-latest
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up PDM
-        uses: pdm-project/setup-pdm@v3
+        uses: pdm-project/setup-pdm@v4
         with:
-          cache: true
           python-version: ${{ matrix.python-version }}
+          cache: true
       - name: Install dependencies
         run: pdm sync -G :all
       - name: Run tests
-        run: pdm test
+        run: pdm run test
 
   passed:
     needs:

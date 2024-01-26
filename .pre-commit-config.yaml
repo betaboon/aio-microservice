@@ -1,26 +1,21 @@
 default_install_hook_types:
   - pre-commit
   - commit-msg
-default_language_version:
-  python: python3.10
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-added-large-files
       - id: check-toml
-      - id: check-yaml
       - id: trailing-whitespace
-  - repo: https://github.com/psf/black
-    rev: 23.3.0
-    hooks:
-      - id: black
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.262
+    rev: v0.1.14
     hooks:
       - id: ruff
+      - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.2.0
+    rev: v1.8.0
     hooks:
       - id: mypy
   - repo: https://github.com/jorisroovers/gitlint

@@ -4,55 +4,63 @@ on:
   workflow_call:
 
 jobs:
-  lint:
+  lint-code:
+    name: Lint code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          ref: ${{ github.ref }}
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
       - name: Set up PDM
-        uses: pdm-project/setup-pdm@v3
+        id: pdm
+        uses: pdm-project/setup-pdm@v4
         with:
           cache: true
       - name: Install dependencies
         run: pdm sync -G :all
+      - name: Cache pre-commit dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ steps.pdm.outpus.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
       - name: Run lint
-        run: pdm ci-lint
+        run: pdm run _ci-lint-code
         env:
-          FROM_REF: origin/${{ github.base_ref }}
+          FROM_REF: origin/${{ github.event.repository.default_branch }}
           TO_REF: HEAD
 
   lint-commits:
+    name: Lint commit messages
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
+          ref: ${{ github.ref }}
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
       - name: Set up PDM
-        uses: pdm-project/setup-pdm@v3
+        uses: pdm-project/setup-pdm@v4
         with:
           cache: true
       - name: Install dependencies
         run: pdm sync -G :all
       - name: Run lint-commits
-        run: pdm ci-lint-commits
+        run: pdm run _ci-lint-commits
         env:
-          FROM_REF: origin/${{ github.base_ref }}
+          FROM_REF: origin/${{ github.event.repository.default_branch }}
           TO_REF: HEAD
 
   passed:
     needs:
-      - lint
+      - lint-code
       - lint-commits
     runs-on: ubuntu-latest
     steps:
-      - name: Check lint status
-        if: ${{ needs.lint.result != 'success' }}
+      - name: Check lint code status
+        if: ${{ needs.lint-code.result != 'success' }}
         run: exit 1
-      - name: Check lint-commits status
+      - name: Check lint commits status
         if: ${{ needs.lint-commits.result != 'success' }}
         run: exit 1

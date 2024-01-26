@@ -1,0 +1,21 @@
+# Changes here will be overwritten by Copier
+_commit: acbe70f
+_src_path: /home/betaboon/src/python/copier-python/
+author_email: betaboon@0x80.ninja
+author_name: betaboon
+copyright_holder: betaboon
+copyright_license: MIT
+copyright_year: '2024'
+project_description: A library to create microservices.
+project_name: AIO Microservice
+python_console_script: false
+python_import_name: aio_microservice
+python_package_name: aio-microservice
+python_versions:
+- '3.9'
+- '3.10'
+- '3.11'
+- '3.12'
+repository_name: aio-microservice
+repository_namespace: betaboon
+repository_provider: github
