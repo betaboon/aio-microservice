@@ -45,6 +45,7 @@ jobs:
   publish-pypi:
     needs:
       - build-package
+      - build-docs
     uses: ./.github/workflows/publish-pypi.yaml
     secrets: inherit
     permissions:
