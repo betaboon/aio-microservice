@@ -41,23 +41,23 @@ Repository = "https://github.com/betaboon/aio-microservice"
 
 [tool.pdm.dev-dependencies]
 docs = [
-    "furo>=2023.9.10",
+    "furo>=2024.1.29",
     "myst-parser>=2.0.0",
     "sphinx-autoapi>=3.0.0",
-    "sphinx-autobuild>=2021.3.14",
+    "sphinx-autobuild>=2024.2.4",
     "sphinx-copybutton>=0.5.2",
     "sphinx>=7.2.6",
 ]
 linting = [
     "gitlint>=0.19.1",
     "mypy>=1.8.0",
-    "pre-commit>=3.6.0",
-    "ruff>=0.1.14",
+    "pre-commit>=3.6.2",
+    "ruff>=0.2.2",
 ]
 testing = [
-    "pytest-asyncio>=0.23.3",
+    "pytest-asyncio>=0.23.5",
     "pytest-cov>=4.1.0",
-    "pytest>=7.4.4",
+    "pytest>=8.0.1",
 ]
 
 [tool.pdm.options]
@@ -93,6 +93,7 @@ fixable = [
 ]
 select = [
     "A",     # flake8-builtins
+    "ANN",   # flake8-annotations
     "ASYNC", # flake8-async
     "B",     # flake8-bugbear
     "BLE",   # flake8-blind-except
@@ -135,8 +136,11 @@ select = [
     "YTT",   # flake8-2020
 ]
 ignore = [
-    "D100", # pydocstyle - undocumented-public-module
-    "D104", # pydocstyle - undocumented-public-package
+    "ANN101", # flake8-annotations - missing-type-self
+    "ANN102", # flake8-annotations - missing-type-cls
+    "D",      # TODO write documentation
+    "D100",   # pydocstyle - undocumented-public-module
+    "D104",   # pydocstyle - undocumented-public-package
 ]
 
 [tool.ruff.isort]
@@ -165,6 +169,12 @@ xfail_strict = true
 branch = true
 parallel = true
 source = ["aio_microservice"]
+omit = ["aio_microservice/__version__.py"]
+
+[tool.coverage.report]
+exclude_also = [
+    'if\s+(typing\.)?TYPE_CHECKING:',
+]
 
 [tool.pdm.scripts.install-git-hooks]
 help = "Install pre-commit hooks"
