@@ -178,8 +178,8 @@ cmd = "sphinx-autobuild --watch aio-microservice docs docs/_build"
 cmd = [
   "pre-commit", "run",
   "--show-diff-on-failure",
-  "--from-ref", "$FROM_REF",
-  "--to-ref", "$TO_REF",
+  "--from-ref", "${FROM_REF}",
+  "--to-ref", "${TO_REF}",
 ]
 
 [tool.pdm.scripts._ci-lint-commits]
@@ -187,5 +187,13 @@ cmd = [
   "gitlint",
   "--contrib", "contrib-title-conventional-commits",
   "--ignore", "body-is-missing",
-  "--commits", "$FROM_REF..$TO_REF",
+  "--commits", "${FROM_REF}..${TO_REF}",
 ]
+
+[tool.semantic_release]
+tag_format = "{version}"
+
+[tool.semantic_release.branches.main]
+match = "(main|master|api-draft)"
+prerelease_token = "rc"
+prerelease = false

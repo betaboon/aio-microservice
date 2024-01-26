@@ -1,6 +1,6 @@
 # AIO Microservice
 
-[![ci](https://img.shields.io/github/actions/workflow/status/betaboon/aio-microservice/ci.yaml?branch=main&logo=github&logoColor=white&style=for-the-badge)](https://github.com/betaboon/aio-microservice/actions/?query=branch%3Amain+workflow%3Aci)
+[![ci](https://img.shields.io/github/actions/workflow/status/betaboon/aio-microservice/ci.yaml?branch=main&logo=github&logoColor=white&style=for-the-badge)](https://github.com/betaboon/aio-microservice/actions/?query=branch%3Amain+workflow%3Aci-main)
 
 [![version](https://img.shields.io/pypi/v/aio-microservice?logo=pypi&logoColor=white&style=for-the-badge)](https://pypi.org/project/aio-microservice)
 [![pyversions](https://img.shields.io/pypi/pyversions/aio-microservice?logo=python&logoColor=white&style=for-the-badge)](https://github.com/betaboon/aio-microservice)

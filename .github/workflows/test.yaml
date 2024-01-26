@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: pdm sync -G :all
       - name: Run tests
-        run: pdm test
+        run: pdm run test
 
   passed:
     needs:
