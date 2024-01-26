@@ -11,25 +11,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # lint:
-  #   uses: ./.github/workflows/lint.yaml
-  #   secrets: inherit
+  lint:
+    uses: ./.github/workflows/lint.yaml
+    secrets: inherit
 
-  # test:
-  #   uses: ./.github/workflows/test.yaml
-  #   secrets: inherit
+  test:
+    uses: ./.github/workflows/test.yaml
+    secrets: inherit
 
   prepare-release:
-    # needs:
-    #   - lint
-    #   - test
+    needs:
+      - lint
+      - test
     uses: ./.github/workflows/prepare-release.yaml
     secrets: inherit
 
   build-package:
     needs:
-      # - lint
-      # - test
       - prepare-release
     if: needs.prepare-release.outputs.new-release == 'true'
     uses: ./.github/workflows/build-package.yaml
