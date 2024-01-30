@@ -2,6 +2,11 @@
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
+from __future__ import annotations
+
+import importlib
+import inspect
+import pathlib
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -18,13 +23,21 @@ extensions = [
     # stock extensions
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.linkcode",
     "sphinx.ext.napoleon",
-    "sphinx.ext.viewcode",
     # third party extensions
     "autoapi.extension",
     "myst_parser",
     "sphinx_copybutton",
 ]
+
+
+# -- Options for autodoc -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#configuration
+
+autodoc_class_signature = "separated"
+autodoc_typehints = "description"
+autodoc_typehints_format = "short"
 
 
 # -- Options for intersphinx -------------------------------------------------
@@ -36,12 +49,52 @@ intersphinx_mapping = {
 }
 
 
-# -- Options for autodoc -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#configuration
+# -- Options for linkscode ---------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/linkcode.html#configuration
+# adapted from: https://github.com/readthedocs/sphinx-autoapi/issues/202
+repository_url = "https://github.com/betaboon/aio-microservice/blob/main"
+python_import_name = "aio_microservice"
 
-autodoc_class_signature = "separated"
-autodoc_typehints = "description"
-autodoc_typehints_format = "short"
+
+def linkcode_resolve(domain: str, info: dict[str, str]) -> str | None:  # noqa: D103
+    if domain != "py":
+        return None
+
+    mod = importlib.import_module(info["module"])
+    if "." in info["fullname"]:
+        objname, attrname = info["fullname"].split(".")
+        obj = getattr(mod, objname)
+        try:
+            # object is a method of a class
+            obj = getattr(obj, attrname)
+        except AttributeError:
+            # object is an attribute of a class
+            return None
+    else:
+        obj = getattr(mod, info["fullname"])
+
+    obj = inspect.unwrap(obj)
+
+    try:
+        file = inspect.getsourcefile(obj)
+        lines = inspect.getsourcelines(obj)
+    except TypeError:
+        return None
+
+    if not file:
+        return None
+
+    docs_path = pathlib.Path(__file__).parent
+    repo_path = docs_path.parent
+    file_path = pathlib.Path(file).relative_to(repo_path)
+
+    if not str(file_path).startswith(f"{python_import_name}/"):
+        return None
+
+    line_start = lines[1]
+    line_end = lines[1] + len(lines[0]) - 1
+
+    return f"{repository_url}/{file_path}#L{line_start}-L{line_end}"
 
 
 # -- Options for autoapi -----------------------------------------------------

@@ -13,6 +13,7 @@ __pypackages__/
 .pdm-python
 pdm.toml
 dist/
+__version__.py
 
 # === mypy ===
 .mypy_cache/

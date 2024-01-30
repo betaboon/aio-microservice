@@ -4,6 +4,8 @@ pkgs.mkShell {
   buildInputs = with pkgs; [
     pdm
     ruff
+    # required for taplo-pre-commit
+    cargo
   ];
 
   shellHook = ''
