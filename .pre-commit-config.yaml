@@ -9,6 +9,10 @@ repos:
       - id: check-added-large-files
       - id: check-toml
       - id: trailing-whitespace
+  - repo: https://github.com/ComPWA/mirrors-taplo
+    rev: v0.8.1
+    hooks:
+      - id: taplo
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.1.14
     hooks:
@@ -18,6 +22,9 @@ repos:
     rev: v1.8.0
     hooks:
       - id: mypy
+        language: system
+        args:
+          - --strict
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1
     hooks:
