@@ -56,7 +56,7 @@ repository_url = "https://github.com/betaboon/aio-microservice/blob/main"
 python_import_name = "aio_microservice"
 
 
-def linkcode_resolve(domain: str, info: dict[str, str]) -> str | None:  # noqa: D103
+def linkcode_resolve(domain: str, info: dict[str, str]) -> str | None:
     if domain != "py":
         return None
 
