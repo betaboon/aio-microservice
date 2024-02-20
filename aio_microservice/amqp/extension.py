@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Callable, TypeVar
+from typing import TYPE_CHECKING, Callable, TypeVar
 
 from faststream import FastStream
-from faststream.rabbit import RabbitBroker
+from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
 from loguru import logger
 from pydantic import BaseModel, Field, SecretStr
 from typing_extensions import Concatenate, ParamSpec
@@ -17,6 +17,10 @@ from aio_microservice.core.abc import (
     startup_message,
 )
 from aio_microservice.types import Port  # noqa: TCH001
+
+if TYPE_CHECKING:
+    from faststream.rabbit.shared.schemas import ReplyConfig
+    from faststream.rabbit.shared.types import TimeoutType
 
 
 class AmqpSettings(BaseModel):
@@ -70,10 +74,27 @@ class AmqpExtensionImpl:
                 if isinstance(handler_setting, subscriber):
                     wrapper = self._faststream_rabbit_broker.subscriber(
                         queue=handler_setting.queue,
+                        exchange=handler_setting.exchange,
+                        reply_config=handler_setting.reply_config,
+                        no_ack=handler_setting.no_ack,
+                        title=handler_setting.title,
+                        description=handler_setting.description,
+                        include_in_schema=handler_setting.include_in_schema,
                     )
                 elif isinstance(handler_setting, publisher):  # pragma: no branch
                     wrapper = self._faststream_rabbit_broker.publisher(
                         queue=handler_setting.queue,
+                        exchange=handler_setting.exchange,
+                        routing_key=handler_setting.routing_key,
+                        reply_to=handler_setting.reply_to,
+                        mandatory=handler_setting.mandatory,
+                        immediate=handler_setting.immediate,
+                        persist=handler_setting.persist,
+                        timeout=handler_setting.timeout,
+                        priority=handler_setting.priority,
+                        title=handler_setting.title,
+                        description=handler_setting.description,
+                        include_in_schema=handler_setting.include_in_schema,
                     )
                 handler = wrapper(handler)
 
@@ -132,8 +153,24 @@ class AmqpDecorator:
 
 # TODO support all faststream decorator options
 class subscriber(AmqpDecorator):  # noqa: N801
-    def __init__(self, queue: str) -> None:
+    def __init__(
+        self,
+        queue: RabbitQueue | str,
+        exchange: RabbitExchange | str | None = None,
+        reply_config: ReplyConfig | None = None,
+        no_ack: bool = False,
+        # AsyncAPI information
+        title: str | None = None,
+        description: str | None = None,
+        include_in_schema: bool = True,
+    ) -> None:
         self.queue = queue
+        self.exchange = exchange
+        self.reply_config = reply_config
+        self.no_ack = no_ack
+        self.title = title
+        self.description = description
+        self.include_in_schema = include_in_schema
 
     def __call__(
         self,
@@ -146,8 +183,34 @@ class subscriber(AmqpDecorator):  # noqa: N801
 
 
 class publisher(AmqpDecorator):  # noqa: N801
-    def __init__(self, queue: str) -> None:
+    def __init__(
+        self,
+        queue: RabbitQueue | str = "",
+        exchange: RabbitExchange | str | None = None,
+        routing_key: str = "",
+        reply_to: str | None = None,
+        mandatory: bool = True,
+        immediate: bool = False,
+        persist: bool = False,
+        timeout: TimeoutType = None,
+        priority: int | None = None,
+        # AsyncAPI information
+        title: str | None = None,
+        description: str | None = None,
+        include_in_schema: bool = True,
+    ) -> None:
         self.queue = queue
+        self.exchange = exchange
+        self.routing_key = routing_key
+        self.reply_to = reply_to
+        self.mandatory = mandatory
+        self.immediate = immediate
+        self.persist = persist
+        self.timeout = timeout
+        self.priority = priority
+        self.title = title
+        self.description = description
+        self.include_in_schema = include_in_schema
 
     def __call__(
         self,
