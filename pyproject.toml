@@ -30,7 +30,36 @@ classifiers = [
     "Typing :: Typed",
 ]
 dynamic = ["version"]
-dependencies = []
+dependencies = [
+    "annotated-types>=0.6.0",
+    "click>=8.1.3",
+    "litestar>=2.6.1",
+    "loguru>=0.7.2",
+    "pydantic>=2.6.1",
+    "pyhumps>=3.8.0",
+    "rich-click>=1.7.3",
+    "rich>=13.7.0",
+    "typed-settings>=24.0.1",
+    "uvicorn>=0.27.1",
+    "typing-extensions>=4.9.0",
+]
+
+[project.optional-dependencies]
+amqp = [
+    "faststream[rabbit]>=0.4.3",
+    "pyyaml>=6.0.1",
+]
+all = [
+    "aio-microservice[s3]",
+    "aio-microservice[scheduler]",
+    "aio-microservice[scheduler]",
+]
+s3 = [
+    "boto3>=1.34.45",
+]
+scheduler = [
+    "apscheduler>=3.10.4",
+]
 
 [project.urls]
 Homepage = "https://github.com/betaboon/aio-microservice"
@@ -49,15 +78,19 @@ docs = [
     "sphinx>=7.2.6",
 ]
 linting = [
+    "boto3-stubs[s3]>=1.34.45",
     "gitlint>=0.19.1",
     "mypy>=1.8.0",
     "pre-commit>=3.6.2",
     "ruff>=0.2.2",
 ]
 testing = [
+    "httpx>=0.26.0",
     "pytest-asyncio>=0.23.5",
     "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
     "pytest>=8.0.1",
+    "testcontainers-on-whales[minio,rabbitmq]>=0.6.8",
 ]
 
 [tool.pdm.options]
@@ -168,6 +201,7 @@ xfail_strict = true
 [tool.coverage.run]
 branch = true
 parallel = true
+concurrency = ["thread", "multiprocessing"]
 source = ["aio_microservice"]
 omit = ["aio_microservice/__version__.py"]
 
