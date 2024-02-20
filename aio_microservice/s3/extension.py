@@ -15,13 +15,13 @@ if TYPE_CHECKING:
 
 class S3Settings(BaseModel):
     endpoint_url: str = Field(
-        description="",  # TODO
+        description="The URL to connet to.",
     )
     access_key_id: str = Field(
-        description="",  # TODO
+        description="The AWS access key ID used for authentication.",
     )
     secret_access_key: SecretStr = Field(
-        description="",  # TODO
+        description="The AWS secret access key used for authentication.",
     )
 
 
