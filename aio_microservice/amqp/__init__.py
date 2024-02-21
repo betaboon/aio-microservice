@@ -1,3 +1,5 @@
+from faststream.rabbit import RabbitExchange, RabbitQueue
+
 from aio_microservice.amqp.extension import (
     AmqpExtension,
     AmqpExtensionSettings,
@@ -11,6 +13,8 @@ __all__ = [
     "AmqpExtension",
     "AmqpExtensionSettings",
     "AmqpSettings",
+    "RabbitExchange",
+    "RabbitQueue",
     "TestAmqpBroker",
     "publisher",
     "subscriber",
