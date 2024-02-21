@@ -50,8 +50,8 @@ amqp = [
     "pyyaml>=6.0.1",
 ]
 all = [
+    "aio-microservice[amqp]",
     "aio-microservice[s3]",
-    "aio-microservice[scheduler]",
     "aio-microservice[scheduler]",
 ]
 s3 = [

@@ -5,7 +5,7 @@
 groups = ["default", "all", "amqp", "docs", "linting", "s3", "scheduler", "testing"]
 strategy = ["cross_platform"]
 lock_version = "4.4.1"
-content_hash = "sha256:9653ece9aba14e25d4eecf2eef7170cc5e865b16180e61ad70056c901d602613"
+content_hash = "sha256:0bb3302256ec04c78a6e324604c223ee9e45a8774ce494e94b36bdd2d97ddd8b"
 
 [[package]]
 name = "aio-pika"
@@ -114,6 +114,9 @@ name = "astroid"
 version = "3.0.3"
 requires_python = ">=3.8.0"
 summary = "An abstract syntax tree for Python with inference support."
+dependencies = [
+    "typing-extensions>=4.0.0; python_version < \"3.11\"",
+]
 files = [
     {file = "astroid-3.0.3-py3-none-any.whl", hash = "sha256:92fcf218b89f449cdf9f7b39a269f8d5d617b27be68434912e11e79203963a17"},
     {file = "astroid-3.0.3.tar.gz", hash = "sha256:4148645659b08b70d72460ed1921158027a9e53ae8b7234149b1400eddacbb93"},
