@@ -77,6 +77,7 @@ class AmqpExtensionImpl:
                         exchange=handler_setting.exchange,
                         reply_config=handler_setting.reply_config,
                         no_ack=handler_setting.no_ack,
+                        retry=handler_setting.retry,
                         title=handler_setting.title,
                         description=handler_setting.description,
                         include_in_schema=handler_setting.include_in_schema,
@@ -159,6 +160,7 @@ class subscriber(AmqpDecorator):  # noqa: N801
         exchange: RabbitExchange | str | None = None,
         reply_config: ReplyConfig | None = None,
         no_ack: bool = False,
+        retry: bool | int = False,
         # AsyncAPI information
         title: str | None = None,
         description: str | None = None,
@@ -168,6 +170,7 @@ class subscriber(AmqpDecorator):  # noqa: N801
         self.exchange = exchange
         self.reply_config = reply_config
         self.no_ack = no_ack
+        self.retry = retry
         self.title = title
         self.description = description
         self.include_in_schema = include_in_schema
