@@ -28,12 +28,18 @@ class S3Settings(BaseModel):
 class S3ExtensionImpl:
     def __init__(self, settings: S3Settings) -> None:
         self._settings = settings
-        self._boto3_s3_client: S3Client = boto3.client(
-            service_name="s3",
+        self._boto3_session = boto3.Session(
             aws_access_key_id=self._settings.access_key_id,
             aws_secret_access_key=self._settings.secret_access_key.get_secret_value(),
+        )
+        self._boto3_s3_client = self.session.client(
+            service_name="s3",
             endpoint_url=self._settings.endpoint_url,
         )
+
+    @property
+    def session(self) -> boto3.session.Session:
+        return self._boto3_session
 
     @property
     def client(self) -> S3Client:
