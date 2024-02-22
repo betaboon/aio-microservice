@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, TypeVar
+from typing import TYPE_CHECKING, Callable, ClassVar, TypeVar
 
-from faststream import FastStream
+from faststream import BaseMiddleware, FastStream
 from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
 from loguru import logger
 from pydantic import BaseModel, Field, SecretStr
@@ -51,6 +51,7 @@ class AmqpExtensionImpl:
             port=self._settings.port,
             login=self._settings.username,
             password=self._settings.password.get_secret_value(),
+            middlewares=service.__amqp_middlewares__,
         )
         self._faststream_app = FastStream(
             broker=self._faststream_rabbit_broker,
@@ -109,6 +110,8 @@ class AmqpExtensionSettings(BaseModel):
 
 
 class AmqpExtension(ServiceExtensionABC):
+    __amqp_middlewares__: ClassVar[list[type[BaseMiddleware]]] = []
+
     def __init__(self, settings: AmqpExtensionSettings) -> None:
         self.amqp = AmqpExtensionImpl(service=self, settings=settings.amqp)
         self.register_http_controller(self.amqp._asyncapi_controller)
