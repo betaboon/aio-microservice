@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from testcontainers_on_whales.rabbitmq import RabbitmqContainer
 
@@ -10,6 +10,7 @@ from aio_microservice.amqp import (
     AmqpExtension,
     AmqpExtensionSettings,
     AmqpSettings,
+    BaseMiddleware,
     TestAmqpBroker,
 )
 from aio_microservice.http import TestHttpClient
@@ -83,3 +84,28 @@ async def test_amqp_retry_on_failure(mocker: MockerFixture) -> None:
 
     container.stop()
     container.wait_exited(timeout=10)
+
+
+async def test_amqp_middleware(mocker: MockerFixture) -> None:
+    middleware_stub = mocker.stub()
+
+    class TestMiddleware(BaseMiddleware):
+        async def on_receive(self) -> None:
+            middleware_stub()
+            await super().on_receive()
+
+    class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
+
+    class TestService(Service[TestSettings], AmqpExtension):
+        __amqp_middlewares__: ClassVar = [TestMiddleware]
+
+        @amqp.subscriber(queue="test-subscriber-queue")
+        async def handle_test(self, message: str) -> None:
+            pass
+
+    service = TestService()
+
+    async with TestAmqpBroker(service) as amqp_broker:
+        await amqp_broker.publish(queue="test-subscriber-queue", message="TEST")
+
+    middleware_stub.assert_called_once()

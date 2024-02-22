@@ -1,7 +1,9 @@
-from litestar import Controller, get
+from typing import ClassVar
+
 from pydantic import BaseModel, Field
 
-from aio_microservice import Service, ServiceSettings
+from aio_microservice import Service, ServiceSettings, http
+from aio_microservice.http import Controller
 
 
 class GreetingRequest(BaseModel):
@@ -19,16 +21,13 @@ class GreetingResponse(BaseModel):
 
 
 class MyController(Controller):
-    @get(path="/greeting")
+    @http.get(path="/greeting")
     async def get_greeting(self, name: str) -> GreetingResponse:
         return GreetingResponse(message=f"Hello {name}")
 
 
 class MyService(Service[ServiceSettings]):
-    def __init__(self, settings: ServiceSettings) -> None:
-        super().__init__(settings=settings)
-        # FIXME
-        self.register_http_controller(MyController)
+    __http_controllers__: ClassVar = [MyController]
 
 
 if __name__ == "__main__":

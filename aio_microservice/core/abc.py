@@ -10,6 +10,7 @@ from pydantic import BaseModel
 class ServiceABC(ABC):
     __version__: ClassVar[str] = "1.0.0"
     __description__: ClassVar[str] = ""
+    __http_controllers__: ClassVar[list[type[litestar.Controller]]] = []
 
     def __init__(self, settings: BaseModel) -> None:
         self._startup_hooks: list[startup_hook] = []
@@ -21,6 +22,9 @@ class ServiceABC(ABC):
         self._http_route_handlers: list[litestar.handlers.HTTPRouteHandler] = []
         self._http_controllers: list[litestar.types.ControllerRouterHandler] = []
 
+        # register controller classes
+        self._http_controllers.extend(self.__http_controllers__)
+
         # initialize extensions
         for extension_cls in self.__class__.__bases__:
             if not issubclass(extension_cls, ServiceExtensionABC):
@@ -30,6 +34,7 @@ class ServiceABC(ABC):
             if "settings" in init_signature.parameters:
                 init_kwargs["settings"] = settings
             extension_cls.__init__(self, **init_kwargs)
+            self._http_controllers.extend(extension_cls.__http_controllers__)
 
         self._collect_decorated_functions()
 
@@ -52,17 +57,16 @@ class ServiceABC(ABC):
             elif isinstance(attribute, litestar.handlers.HTTPRouteHandler):
                 self._http_route_handlers.append(attribute)
 
+    @abstractmethod
+    async def run(self) -> None: ...  # pragma: no cover
+
+
+class ServiceExtensionABC(ServiceABC):
     def register_http_controller(
         self,
         controller: litestar.types.ControllerRouterHandler,
     ) -> None:
         self._http_controllers.append(controller)
-
-    @abstractmethod
-    async def run(self) -> None: ...  # pragma: no cover
-
-
-class ServiceExtensionABC(ServiceABC): ...
 
 
 ServiceABCT = TypeVar("ServiceABCT", bound=ServiceABC)
