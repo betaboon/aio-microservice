@@ -1,4 +1,6 @@
-from collections.abc import AsyncGenerator
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from loguru import logger
 from pydantic import BaseModel, Field
@@ -16,6 +18,9 @@ from aio_microservice import (
     startup_message,
 )
 from aio_microservice.amqp import AmqpExtension, AmqpExtensionSettings
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 
 class GreetingRequest(BaseModel):
@@ -46,7 +51,7 @@ class ExampleService(Service[ExampleSettings], AmqpExtension):
         And some more text.
     """
 
-    def __init__(self, settings: ExampleSettings) -> None:
+    def __init__(self, settings: ExampleSettings | None = None) -> None:
         super().__init__(settings=settings)
         self.request_publisher = self.amqp.broker.publisher(
             queue="request-queue",
