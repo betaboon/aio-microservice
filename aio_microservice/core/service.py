@@ -65,6 +65,10 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
         self._litestar_app = self._create_litestar_app()
         self._uvicorn_server = self._create_uvicorn_server(self._litestar_app)
 
+    @property
+    def litestar_app(self) -> litestar.Litestar:
+        return self._litestar_app
+
     def _get_litestar_on_startup(self) -> list[litestar.types.LifespanHook]:
         fns: list[litestar.types.LifespanHook] = [partial(fn, self) for fn in self._startup_hooks]
         fns.append(self._emit_startup_message)
