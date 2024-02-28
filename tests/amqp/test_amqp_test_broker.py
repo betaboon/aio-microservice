@@ -7,7 +7,7 @@ from aio_microservice.amqp import AmqpExtension, AmqpExtensionSettings, TestAmqp
 from aio_microservice.http import TestHttpClient
 
 
-async def test_test_amqp_client_subscriber_decorator() -> None:
+async def test_amqp_test_broker_subscriber_decorator() -> None:
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
     class TestService(Service[TestSettings], AmqpExtension):
@@ -26,7 +26,7 @@ async def test_test_amqp_client_subscriber_decorator() -> None:
         assert service.handler_got_called is True
 
 
-async def test_test_amqp_client_publisher_decorator() -> None:
+async def test_amqp_test_broker_publisher_decorator() -> None:
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
     class TestService(Service[TestSettings], AmqpExtension):
@@ -45,7 +45,7 @@ async def test_test_amqp_client_publisher_decorator() -> None:
         assert published_messages[0] == "TEST-RESPONSE"
 
 
-async def test_test_amqp_client_publisher_decorator_pydantic() -> None:
+async def test_amqp_test_broker_publisher_decorator_pydantic() -> None:
     class Response(BaseModel):
         message: str
         number: int
@@ -68,7 +68,7 @@ async def test_test_amqp_client_publisher_decorator_pydantic() -> None:
         assert published_messages[0] == Response(message="TEST-RESPONSE", number=42).model_dump()
 
 
-async def test_test_amqp_client_publisher_instance() -> None:
+async def test_amqp_test_broker_publisher_instance() -> None:
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
     class TestService(Service[TestSettings], AmqpExtension):
@@ -92,7 +92,7 @@ async def test_test_amqp_client_publisher_instance() -> None:
         assert published_messages[0] == "TEST-RESPONSE"
 
 
-async def test_test_amqp_client_publisher_instance_pydantic() -> None:
+async def test_amqp_test_broker_publisher_instance_pydantic() -> None:
     class Response(BaseModel):
         message: str
         number: int
@@ -121,7 +121,7 @@ async def test_test_amqp_client_publisher_instance_pydantic() -> None:
         assert published_messages[0] == Response(message="TEST-RESPONSE", number=42).model_dump()
 
 
-async def test_test_amqp_client_reset_published_messages() -> None:
+async def test_amqp_test_broker_reset_published_messages() -> None:
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
     class TestService(Service[TestSettings], AmqpExtension):
@@ -149,7 +149,7 @@ async def test_test_amqp_client_reset_published_messages() -> None:
         assert len(published_messages) == 1
 
 
-async def test_test_amqp_client_publisher_inside_http_handler() -> None:
+async def test_amqp_test_broker_publisher_inside_http_handler() -> None:
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
     class TestService(Service[TestSettings], AmqpExtension):
