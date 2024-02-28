@@ -133,6 +133,7 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
             on_shutdown=self._get_litestar_on_shutdown(),
             lifespan=self._get_litestar_lifespan(),
             route_handlers=self._get_litestar_route_handlers(),
+            listeners=self._litestar_listeners,
             openapi_config=openapi_config,
         )
 

@@ -21,6 +21,7 @@ class ServiceABC(ABC):
         self._startup_messages: list[startup_message] = []
         self._litestar_http_route_handlers: list[litestar.handlers.HTTPRouteHandler] = []
         self._litestar_http_controllers: list[litestar.types.ControllerRouterHandler] = []
+        self._litestar_listeners: list[litestar.events.EventListener] = []
 
         # register controller classes
         self._litestar_http_controllers.extend(self.__http_controllers__)
@@ -55,6 +56,8 @@ class ServiceABC(ABC):
                 self._startup_messages.append(attribute)
             elif isinstance(attribute, litestar.handlers.HTTPRouteHandler):
                 self._litestar_http_route_handlers.append(attribute)
+            elif isinstance(attribute, litestar.events.EventListener):
+                self._litestar_listeners.append(attribute)
 
     @abstractmethod
     async def run(self) -> None: ...  # pragma: no cover
