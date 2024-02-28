@@ -65,6 +65,10 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
         self._litestar_app = self._create_litestar_app()
         self._uvicorn_server = self._create_uvicorn_server(self._litestar_app)
 
+    @property
+    def litestar_app(self) -> litestar.Litestar:
+        return self._litestar_app
+
     def _get_litestar_on_startup(self) -> list[litestar.types.LifespanHook]:
         fns: list[litestar.types.LifespanHook] = [partial(fn, self) for fn in self._startup_hooks]
         fns.append(self._emit_startup_message)
@@ -88,8 +92,8 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
     def _get_litestar_route_handlers(
         self,
     ) -> list[litestar.types.ControllerRouterHandler]:
-        litestar_route_handlers = self._http_controllers
-        for route_handler in self._http_route_handlers:
+        litestar_route_handlers = self._litestar_http_controllers
+        for route_handler in self._litestar_http_route_handlers:
             # replace fn with a partial to emulate Controller behavior
             route_handler._fn = partial(route_handler.fn, self)
             litestar_route_handlers.append(route_handler)
@@ -129,6 +133,7 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
             on_shutdown=self._get_litestar_on_shutdown(),
             lifespan=self._get_litestar_lifespan(),
             route_handlers=self._get_litestar_route_handlers(),
+            listeners=self._litestar_listeners,
             openapi_config=openapi_config,
         )
 

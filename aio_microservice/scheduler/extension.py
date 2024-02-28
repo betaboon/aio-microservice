@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 from datetime import timezone
 from typing import TYPE_CHECKING, Callable, TypeVar
 
@@ -22,11 +23,12 @@ class SchedulerExtensionImpl:
         self._register_schedules()
 
     def _register_schedules(self) -> None:
-        for attribute_name in dir(self._service):
-            attribute = getattr(self._service, attribute_name)
-            if not hasattr(attribute, SchedulerDecorator.MARKER):
-                continue
-            schedule = attribute
+        schedule_methods = inspect.getmembers(
+            object=self._service,
+            predicate=lambda obj: hasattr(obj, SchedulerDecorator.MARKER),
+        )
+        for schedule_name, _ in schedule_methods:
+            schedule = getattr(self._service, schedule_name)
             schedule_settings = getattr(schedule, SchedulerDecorator.MARKER)
             for schedule_setting in schedule_settings:
                 if isinstance(schedule_setting, interval):
@@ -55,6 +57,10 @@ class SchedulerExtensionImpl:
                         fn=schedule,
                         expression=schedule_setting.expression,
                     )
+
+    @property
+    def scheduler(self) -> AsyncIOScheduler:
+        return self._scheduler
 
     def add_interval(
         self,

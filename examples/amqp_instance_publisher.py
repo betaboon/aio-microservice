@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from loguru import logger
 from pydantic import BaseModel, Field
 
@@ -23,7 +25,7 @@ class MySettings(ServiceSettings, AmqpExtensionSettings): ...
 
 
 class MyService(Service[MySettings], AmqpExtension):
-    def __init__(self, settings: MySettings) -> None:
+    def __init__(self, settings: MySettings | None = None) -> None:
         super().__init__(settings=settings)
         self.response_publisher = self.amqp.broker.publisher(
             queue="response-queue",

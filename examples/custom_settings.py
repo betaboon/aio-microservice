@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from loguru import logger
 from pydantic import Field
 
@@ -12,10 +14,10 @@ class MySettings(ServiceSettings):
 
 
 class MyService(Service[MySettings]):
-    def __init__(self, settings: MySettings) -> None:
+    def __init__(self, settings: MySettings | None = None) -> None:
         super().__init__(settings=settings)
 
-        logger.debug(f"{settings.some=}")
+        logger.debug(f"{self.settings.some=}")
 
 
 if __name__ == "__main__":

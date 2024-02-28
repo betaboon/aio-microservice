@@ -53,5 +53,5 @@ async def test_scheduler_crontab(mocker: MockerFixture) -> None:
 
     service = TestService()
 
-    jobs = service.scheduler._scheduler.get_jobs()
+    jobs = service.scheduler.scheduler.get_jobs()
     assert len(jobs) == 1
