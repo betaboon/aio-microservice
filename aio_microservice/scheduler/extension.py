@@ -58,6 +58,10 @@ class SchedulerExtensionImpl:
                         expression=schedule_setting.expression,
                     )
 
+    @property
+    def scheduler(self) -> AsyncIOScheduler:
+        return self._scheduler
+
     def add_interval(
         self,
         fn: Callable[[], Awaitable[None]],
