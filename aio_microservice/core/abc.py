@@ -19,11 +19,11 @@ class ServiceABC(ABC):
         self._readiness_probes: list[readiness_probe] = []
         self._liveness_probes: list[liveness_probe] = []
         self._startup_messages: list[startup_message] = []
-        self._http_route_handlers: list[litestar.handlers.HTTPRouteHandler] = []
-        self._http_controllers: list[litestar.types.ControllerRouterHandler] = []
+        self._litestar_http_route_handlers: list[litestar.handlers.HTTPRouteHandler] = []
+        self._litestar_http_controllers: list[litestar.types.ControllerRouterHandler] = []
 
         # register controller classes
-        self._http_controllers.extend(self.__http_controllers__)
+        self._litestar_http_controllers.extend(self.__http_controllers__)
 
         # initialize extensions
         for extension_cls in self.__class__.__bases__:
@@ -34,7 +34,7 @@ class ServiceABC(ABC):
             if "settings" in init_signature.parameters:
                 init_kwargs["settings"] = settings
             extension_cls.__init__(self, **init_kwargs)
-            self._http_controllers.extend(extension_cls.__http_controllers__)
+            self._litestar_http_controllers.extend(extension_cls.__http_controllers__)
 
         self._collect_decorated_functions()
 
@@ -54,7 +54,7 @@ class ServiceABC(ABC):
             elif isinstance(attribute, startup_message):
                 self._startup_messages.append(attribute)
             elif isinstance(attribute, litestar.handlers.HTTPRouteHandler):
-                self._http_route_handlers.append(attribute)
+                self._litestar_http_route_handlers.append(attribute)
 
     @abstractmethod
     async def run(self) -> None: ...  # pragma: no cover
@@ -65,7 +65,7 @@ class ServiceExtensionABC(ServiceABC):
         self,
         controller: litestar.types.ControllerRouterHandler,
     ) -> None:
-        self._http_controllers.append(controller)
+        self._litestar_http_controllers.append(controller)
 
 
 ServiceABCT = TypeVar("ServiceABCT", bound=ServiceABC)

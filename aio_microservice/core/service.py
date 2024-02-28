@@ -88,8 +88,8 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
     def _get_litestar_route_handlers(
         self,
     ) -> list[litestar.types.ControllerRouterHandler]:
-        litestar_route_handlers = self._http_controllers
-        for route_handler in self._http_route_handlers:
+        litestar_route_handlers = self._litestar_http_controllers
+        for route_handler in self._litestar_http_route_handlers:
             # replace fn with a partial to emulate Controller behavior
             route_handler._fn = partial(route_handler.fn, self)
             litestar_route_handlers.append(route_handler)
