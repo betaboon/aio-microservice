@@ -40,8 +40,7 @@ class ServiceABC(ABC):
 
     def _collect_decorated_functions(self) -> None:
         # collect decorated functions
-        for attribute_name in dir(self.__class__):
-            attribute = getattr(self.__class__, attribute_name)
+        for _, attribute in inspect.getmembers(self.__class__):
             if isinstance(attribute, startup_hook):
                 self._startup_hooks.append(attribute)
             elif isinstance(attribute, shutdown_hook):

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeVar
 
 from faststream import BaseMiddleware, FastStream
@@ -65,11 +66,12 @@ class AmqpExtensionImpl:
         self._register_handlers()
 
     def _register_handlers(self) -> None:
-        for attribute_name in dir(self._service):
-            attribute = getattr(self._service, attribute_name)
-            if not hasattr(attribute, AmqpDecorator.MARKER):
-                continue
-            handler = attribute
+        handler_methods = inspect.getmembers(
+            object=self._service,
+            predicate=lambda obj: hasattr(obj, AmqpDecorator.MARKER),
+        )
+        for handler_name, _ in handler_methods:
+            handler = getattr(self._service, handler_name)
             handler_settings = getattr(handler, AmqpDecorator.MARKER)
             for handler_setting in handler_settings:
                 if isinstance(handler_setting, subscriber):
