@@ -1,18 +1,23 @@
+from __future__ import annotations
+
 import inspect
 from abc import ABC, abstractmethod
-from collections.abc import AsyncGenerator, Awaitable
-from typing import Callable, ClassVar, TypeVar
+from typing import TYPE_CHECKING, Callable, ClassVar, TypeVar
 
 import litestar
-from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator, Awaitable
+
+    from pydantic import BaseModel
 
 
-class ServiceABC(ABC):
+class CommonABC(ABC):
     __version__: ClassVar[str] = "1.0.0"
     __description__: ClassVar[str] = ""
     __http_controllers__: ClassVar[list[type[litestar.Controller]]] = []
 
-    def __init__(self, settings: BaseModel) -> None:
+    def __init__(self) -> None:
         self._startup_hooks: list[startup_hook] = []
         self._shutdown_hooks: list[shutdown_hook] = []
         self._lifespan_hooks: list[lifespan_hook] = []
@@ -26,21 +31,9 @@ class ServiceABC(ABC):
         # register controller classes
         self._litestar_http_controllers.extend(self.__http_controllers__)
 
-        # initialize extensions
-        for extension_cls in self.__class__.__bases__:
-            if not issubclass(extension_cls, ServiceExtensionABC):
-                continue
-            init_kwargs = {}
-            init_signature = inspect.signature(extension_cls.__init__)
-            if "settings" in init_signature.parameters:
-                init_kwargs["settings"] = settings
-            extension_cls.__init__(self, **init_kwargs)
-            self._litestar_http_controllers.extend(extension_cls.__http_controllers__)
-
         self._collect_decorated_functions()
 
     def _collect_decorated_functions(self) -> None:
-        # collect decorated functions
         for _, attribute in inspect.getmembers(self.__class__):
             if isinstance(attribute, startup_hook):
                 self._startup_hooks.append(attribute)
@@ -59,11 +52,36 @@ class ServiceABC(ABC):
             elif isinstance(attribute, litestar.events.EventListener):
                 self._litestar_listeners.append(attribute)
 
+
+class ServiceABC(CommonABC):
+    def __init__(self, settings: BaseModel) -> None:
+        CommonABC.__init__(self)
+        self._init_extensions(settings)
+
+    def _init_extensions(self, settings: BaseModel) -> None:
+        for extension_cls in ServiceExtensionABC._extension_classes:
+            if not isinstance(self, extension_cls):
+                continue
+            # pass settings if the extension-constructor expects them
+            init_kwargs = {}
+            init_signature = inspect.signature(extension_cls.__init__)
+            if "settings" in init_signature.parameters:
+                init_kwargs["settings"] = settings
+            extension_cls.__init__(self, **init_kwargs)
+
     @abstractmethod
     async def run(self) -> None: ...  # pragma: no cover
 
 
-class ServiceExtensionABC(ServiceABC):
+# TODO rename this to ExtensionABC ?
+class ServiceExtensionABC(CommonABC):
+    _extension_classes: ClassVar[set[type[ServiceExtensionABC]]] = set()
+
+    def __init_subclass__(cls) -> None:
+        if ServiceABC in cls.__mro__:  # pragma: no cover
+            return
+        ServiceExtensionABC._extension_classes.add(cls)
+
     def register_http_controller(
         self,
         controller: litestar.types.ControllerRouterHandler,
@@ -71,35 +89,35 @@ class ServiceExtensionABC(ServiceABC):
         self._litestar_http_controllers.append(controller)
 
 
-ServiceABCT = TypeVar("ServiceABCT", bound=ServiceABC)
+CommonABCT = TypeVar("CommonABCT", bound=CommonABC)
 
 
 class startup_hook:  # noqa: N801
     def __init__(
         self,
-        fn: Callable[[ServiceABCT], Awaitable[None]],
+        fn: Callable[[CommonABCT], Awaitable[None]],
     ) -> None:
         self.fn = fn
 
-    async def __call__(self, service: ServiceABCT) -> None:
+    async def __call__(self, service: CommonABCT) -> None:
         await self.fn(service)
 
 
 class shutdown_hook:  # noqa: N801
     def __init__(
         self,
-        fn: Callable[[ServiceABCT], Awaitable[None]],
+        fn: Callable[[CommonABCT], Awaitable[None]],
     ) -> None:
         self.fn = fn
 
-    async def __call__(self, service: ServiceABCT) -> None:
+    async def __call__(self, service: CommonABCT) -> None:
         await self.fn(service)
 
 
 class lifespan_hook:  # noqa: N801
     def __init__(
         self,
-        fn: Callable[[ServiceABCT], AsyncGenerator[None, None]],
+        fn: Callable[[CommonABCT], AsyncGenerator[None, None]],
     ) -> None:
         self.fn = fn
 
@@ -107,31 +125,31 @@ class lifespan_hook:  # noqa: N801
 class readiness_probe:  # noqa: N801
     def __init__(
         self,
-        fn: Callable[[ServiceABCT], Awaitable[bool]],
+        fn: Callable[[CommonABCT], Awaitable[bool]],
     ) -> None:
         self.fn = fn
 
-    async def __call__(self, service: ServiceABCT) -> bool:
+    async def __call__(self, service: CommonABCT) -> bool:
         return await self.fn(service)
 
 
 class liveness_probe:  # noqa: N801
     def __init__(
         self,
-        fn: Callable[[ServiceABCT], Awaitable[bool]],
+        fn: Callable[[CommonABCT], Awaitable[bool]],
     ) -> None:
         self.fn = fn
 
-    async def __call__(self, service: ServiceABCT) -> bool:
+    async def __call__(self, service: CommonABCT) -> bool:
         return await self.fn(service)
 
 
 class startup_message:  # noqa: N801
     def __init__(
         self,
-        fn: Callable[[ServiceABCT], Awaitable[str]],
+        fn: Callable[[CommonABCT], Awaitable[str]],
     ) -> None:
         self.fn = fn
 
-    async def __call__(self, service: ServiceABCT) -> str:
+    async def __call__(self, service: CommonABCT) -> str:
         return await self.fn(service)
