@@ -169,29 +169,35 @@ select = [
     "YTT",   # flake8-2020
 ]
 ignore = [
-    "ANN101", # flake8-annotations - missing-type-self
-    "ANN102", # flake8-annotations - missing-type-cls
+    "ANN101", # flake8-annotations - missing-type-self - deprecated
+    "ANN102", # flake8-annotations - missing-type-cls - deprecated
     "D",      # TODO write documentation
     "D100",   # pydocstyle - undocumented-public-module
     "D104",   # pydocstyle - undocumented-public-package
+    "PT004",  # flake8-pytest-style - pytest-missing-fixture-name-underscore - see: https://github.com/astral-sh/ruff/issues/8796
+    "PT005",  # flake8-pytest-style - pytest-incorrect-fixture-name-underscore - see: https://github.com/astral-sh/ruff/issues/8796
 ]
 
-[tool.ruff.isort]
-combine-as-imports = true
-
-[tool.ruff.pydocstyle]
-convention = "google"
-
-[tool.ruff.flake8-tidy-imports]
-ban-relative-imports = "all"
-
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/**/*" = [
     "C901", # mccabe - complex-structure
     "D",    # pydocstyle
     "S",    # flake8-bandit
     "SIM",  # flake8-simplify
 ]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false # see: https://github.com/astral-sh/ruff/issues/8796
+mark-parentheses = false    # see: https://github.com/astral-sh/ruff/issues/8796
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.pytest.ini_options]
 addopts = "--strict-config --strict-markers --cov"
