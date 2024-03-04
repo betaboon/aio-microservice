@@ -33,20 +33,20 @@ dynamic = ["version"]
 dependencies = [
     "annotated-types>=0.6.0",
     "click>=8.1.3",
-    "litestar>=2.6.1",
+    "litestar>=2.6.3",
     "loguru>=0.7.2",
-    "pydantic>=2.6.1",
+    "pydantic>=2.6.3",
     "pyhumps>=3.8.0",
     "rich-click>=1.7.3",
-    "rich>=13.7.0",
-    "typed-settings>=24.0.1",
+    "rich>=13.7.1",
+    "typed-settings>=24.1.0",
     "uvicorn>=0.27.1",
-    "typing-extensions>=4.9.0",
+    "typing-extensions>=4.10.0",
 ]
 
 [project.optional-dependencies]
 amqp = [
-    "faststream[rabbit]>=0.4.3",
+    "faststream[rabbit]>=0.4.6",
     "pyyaml>=6.0.1",
 ]
 all = [
@@ -55,7 +55,7 @@ all = [
     "aio-microservice[scheduler]",
 ]
 s3 = [
-    "boto3>=1.34.45",
+    "boto3>=1.34.54",
 ]
 scheduler = [
     "apscheduler>=3.10.4",
@@ -78,19 +78,19 @@ docs = [
     "sphinx>=7.2.6",
 ]
 linting = [
-    "boto3-stubs[s3]>=1.34.45",
+    "boto3-stubs[s3]>=1.34.54",
     "gitlint>=0.19.1",
     "mypy>=1.8.0",
     "pre-commit>=3.6.2",
-    "ruff>=0.2.2",
+    "ruff>=0.3.0",
 ]
 testing = [
-    "httpx>=0.26.0",
+    "httpx>=0.27.0",
     "pytest-asyncio>=0.23.5",
     "pytest-cov>=4.1.0",
     "pytest-mock>=3.12.0",
-    "pytest>=8.0.1",
-    "testcontainers-on-whales[minio,rabbitmq]>=0.6.8",
+    "pytest>=8.0.2",
+    "testcontainers-on-whales[minio,rabbitmq]>=0.7.0",
 ]
 
 [tool.pdm.options]
