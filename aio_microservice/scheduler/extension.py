@@ -10,7 +10,7 @@ from apscheduler.triggers.interval import IntervalTrigger  # type: ignore
 from loguru import logger
 from typing_extensions import Concatenate, ParamSpec
 
-from aio_microservice.core.abc import ServiceExtensionABC, shutdown_hook, startup_hook
+from aio_microservice.core.abc import ExtensionABC, shutdown_hook, startup_hook
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable
@@ -113,7 +113,7 @@ class SchedulerExtensionImpl:
         self._scheduler.add_job(func=fn, trigger=trigger)
 
 
-class SchedulerExtension(ServiceExtensionABC):
+class SchedulerExtension(ExtensionABC):
     def __init__(self) -> None:
         self.scheduler = SchedulerExtensionImpl(service=self)
 
