@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
 from aio_microservice import Service, ServiceSettings, http
-from aio_microservice.core.abc import ServiceExtensionABC
+from aio_microservice.core.abc import ExtensionABC
 
 
 class MySettings(BaseModel):
@@ -20,7 +20,7 @@ class MyExtensionSettings(BaseModel):
     my: MySettings = MySettings()
 
 
-class MyExtension(ServiceExtensionABC):
+class MyExtension(ExtensionABC):
     def __init__(self, settings: MyExtensionSettings) -> None:
         self.my = MyExtensionImpl(settings=settings.my)
 

@@ -7,7 +7,7 @@ import botocore
 from loguru import logger
 from pydantic import BaseModel, Field, SecretStr
 
-from aio_microservice.core.abc import ServiceExtensionABC, readiness_probe, startup_hook
+from aio_microservice.core.abc import ExtensionABC, readiness_probe, startup_hook
 
 if TYPE_CHECKING:
     from mypy_boto3_s3.client import S3Client
@@ -59,7 +59,7 @@ class S3ExtensionSettings(BaseModel):
     s3: S3Settings
 
 
-class S3Extension(ServiceExtensionABC):
+class S3Extension(ExtensionABC):
     def __init__(self, settings: S3ExtensionSettings) -> None:
         self.s3 = S3ExtensionImpl(settings=settings.s3)
 

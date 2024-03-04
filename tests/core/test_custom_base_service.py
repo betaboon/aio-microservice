@@ -1,7 +1,7 @@
 from typing import TypeVar
 
 from aio_microservice import Service, ServiceSettings
-from aio_microservice.core.abc import ServiceExtensionABC
+from aio_microservice.core.abc import ExtensionABC
 
 
 async def test_custom_base() -> None:
@@ -19,7 +19,7 @@ async def test_custom_base() -> None:
 
 
 async def test_custom_base_with_extensions() -> None:
-    class TestExtension(ServiceExtensionABC): ...
+    class TestExtension(ExtensionABC): ...
 
     TestBaseSettingsT = TypeVar("TestBaseSettingsT", bound=ServiceSettings)
 

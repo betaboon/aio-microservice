@@ -11,7 +11,7 @@ from typing_extensions import Concatenate, ParamSpec
 
 from aio_microservice.amqp.asyncapi import make_asyncapi_controller
 from aio_microservice.core.abc import (
-    ServiceExtensionABC,
+    ExtensionABC,
     readiness_probe,
     shutdown_hook,
     startup_hook,
@@ -111,7 +111,7 @@ class AmqpExtensionSettings(BaseModel):
     amqp: AmqpSettings = AmqpSettings()
 
 
-class AmqpExtension(ServiceExtensionABC):
+class AmqpExtension(ExtensionABC):
     __amqp_middlewares__: ClassVar[list[type[BaseMiddleware]]] = []
 
     def __init__(self, settings: AmqpExtensionSettings) -> None:

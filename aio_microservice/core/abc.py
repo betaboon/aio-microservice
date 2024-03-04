@@ -59,7 +59,7 @@ class ServiceABC(CommonABC):
         self._init_extensions(settings)
 
     def _init_extensions(self, settings: BaseModel) -> None:
-        for extension_cls in ServiceExtensionABC._extension_classes:
+        for extension_cls in ExtensionABC._extension_classes:
             if not isinstance(self, extension_cls):
                 continue
             # pass settings if the extension-constructor expects them
@@ -73,14 +73,13 @@ class ServiceABC(CommonABC):
     async def run(self) -> None: ...  # pragma: no cover
 
 
-# TODO rename this to ExtensionABC ?
-class ServiceExtensionABC(CommonABC):
-    _extension_classes: ClassVar[set[type[ServiceExtensionABC]]] = set()
+class ExtensionABC(CommonABC):
+    _extension_classes: ClassVar[set[type[ExtensionABC]]] = set()
 
     def __init_subclass__(cls) -> None:
         if ServiceABC in cls.__mro__:  # pragma: no cover
             return
-        ServiceExtensionABC._extension_classes.add(cls)
+        ExtensionABC._extension_classes.add(cls)
 
     def register_http_controller(
         self,
