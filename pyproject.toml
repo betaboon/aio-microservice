@@ -60,6 +60,10 @@ s3 = [
 scheduler = [
     "apscheduler>=3.10.4",
 ]
+graphql = [
+    "strawberry-graphql>=0.220.0",
+    "websockets>=12.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/betaboon/aio-microservice"
@@ -114,6 +118,10 @@ exclude_commit_patterns = [
 [tool.mypy]
 strict = true
 python_version = "3.9"
+plugins = [
+    "pydantic.mypy",
+    "strawberry.ext.mypy_plugin",
+]
 
 [tool.ruff]
 target-version = "py39"
