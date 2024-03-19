@@ -206,3 +206,133 @@ async def test_amqp_prefetch_count_one(
 
         assert handler_pre_stub.call_count == 2
         assert handler_post_stub.call_count == 2
+
+
+async def test_amqp_graceful_timeout_none(
+    mocker: MockerFixture,
+    rabbitmq_ip: str,
+    rabbitmq_port: int,
+) -> None:
+    handler_pre_stub = mocker.stub()
+    handler_post_stub = mocker.stub()
+    handler_cancelled_stub = mocker.stub()
+
+    class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
+
+    class TestService(Service[TestSettings], AmqpExtension):
+        @amqp.subscriber(queue="test-subscriber-queue")
+        async def handle_test(self) -> None:
+            handler_pre_stub()
+            try:
+                await asyncio.sleep(0.5)
+            except asyncio.CancelledError:
+                handler_cancelled_stub()
+            else:
+                handler_post_stub()
+
+    settings = TestSettings(amqp=AmqpSettings(host=rabbitmq_ip, port=rabbitmq_port))
+    service = TestService(settings=settings)
+
+    publish_task = None
+
+    async with TestAmqpBroker(service=service, with_real=True) as amqp_broker:
+        publish_task = asyncio.create_task(amqp_broker.publish(queue="test-subscriber-queue"))
+
+        await asyncio.sleep(0.1)
+
+        assert handler_pre_stub.call_count == 1
+        assert handler_post_stub.call_count == 0
+
+    await publish_task
+
+    assert handler_cancelled_stub.call_count == 1
+    assert handler_pre_stub.call_count == 1
+    assert handler_post_stub.call_count == 0
+
+
+async def test_amqp_graceful_timeout_lower_than_handler_duration(
+    mocker: MockerFixture,
+    rabbitmq_ip: str,
+    rabbitmq_port: int,
+) -> None:
+    handler_pre_stub = mocker.stub()
+    handler_post_stub = mocker.stub()
+    handler_cancelled_stub = mocker.stub()
+
+    class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
+
+    class TestService(Service[TestSettings], AmqpExtension):
+        __amqp_graceful_timeout__ = 0.1
+
+        @amqp.subscriber(queue="test-subscriber-queue")
+        async def handle_test(self) -> None:
+            handler_pre_stub()
+            try:
+                await asyncio.sleep(0.5)
+            except asyncio.CancelledError:
+                handler_cancelled_stub()
+            else:
+                handler_post_stub()
+
+    settings = TestSettings(amqp=AmqpSettings(host=rabbitmq_ip, port=rabbitmq_port))
+    service = TestService(settings=settings)
+
+    publish_task = None
+
+    async with TestAmqpBroker(service=service, with_real=True) as amqp_broker:
+        publish_task = asyncio.create_task(amqp_broker.publish(queue="test-subscriber-queue"))
+
+        await asyncio.sleep(0.1)
+
+        assert handler_pre_stub.call_count == 1
+        assert handler_post_stub.call_count == 0
+
+    await publish_task
+
+    assert handler_cancelled_stub.call_count == 1
+    assert handler_pre_stub.call_count == 1
+    assert handler_post_stub.call_count == 0
+
+
+async def test_amqp_graceful_timeout_higher_handler_duration(
+    mocker: MockerFixture,
+    rabbitmq_ip: str,
+    rabbitmq_port: int,
+) -> None:
+    handler_pre_stub = mocker.stub()
+    handler_post_stub = mocker.stub()
+    handler_cancelled_stub = mocker.stub()
+
+    class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
+
+    class TestService(Service[TestSettings], AmqpExtension):
+        __amqp_graceful_timeout__ = 1.0
+
+        @amqp.subscriber(queue="test-subscriber-queue")
+        async def handle_test(self) -> None:
+            handler_pre_stub()
+            try:
+                await asyncio.sleep(0.5)
+            except asyncio.CancelledError:
+                handler_cancelled_stub()
+            else:
+                handler_post_stub()
+
+    settings = TestSettings(amqp=AmqpSettings(host=rabbitmq_ip, port=rabbitmq_port))
+    service = TestService(settings=settings)
+
+    publish_task = None
+
+    async with TestAmqpBroker(service=service, with_real=True) as amqp_broker:
+        publish_task = asyncio.create_task(amqp_broker.publish(queue="test-subscriber-queue"))
+
+        await asyncio.sleep(0.1)
+
+        assert handler_pre_stub.call_count == 1
+        assert handler_post_stub.call_count == 0
+
+    await publish_task
+
+    assert handler_cancelled_stub.call_count == 0
+    assert handler_pre_stub.call_count == 1
+    assert handler_post_stub.call_count == 1
