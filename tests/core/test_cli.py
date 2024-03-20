@@ -36,13 +36,13 @@ def test_cli_help_custom_settings(
     class TestService(Service[TestSettings]): ...
 
     mocker.patch.dict("os.environ", {"NO_COLOR": "1", "TERM": "dumb"})
-    mocker.patch("sys.argv", ["test-service", "--help"])
+    mocker.patch("sys.argv", ["test-service", "run", "--help"])
 
     with pytest.raises(SystemExit):
         TestService.cli()
 
     captured = capsys.readouterr()
-    assert "Usage: test-service [OPTIONS]" in captured.out
+    assert "Usage: test-service run [OPTIONS]" in captured.out
     matches = re.findall(r"--test-value\s+TEXT\s+TEST DESCRIPTION", captured.out)
     assert len(matches) == 1, "custom setting not found in help text"
 
@@ -69,7 +69,7 @@ def test_cli_run(mocker: MockerFixture) -> None:
     class TestService(Service[ServiceSettings]): ...
 
     mocker.patch.dict("os.environ", {"NO_COLOR": "1", "TERM": "dumb"})
-    mocker.patch("sys.argv", ["test-service", "--http-port=1234"])
+    mocker.patch("sys.argv", ["test-service", "run", "--http-port=1234"])
     p = multiprocessing.Process(target=TestService.cli)
     p.start()
 

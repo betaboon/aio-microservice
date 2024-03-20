@@ -201,7 +201,15 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
 
     @classmethod
     def cli(cls) -> None:
-        @click.command(help=cls.__description__)
+        @click.group(help=cls.__description__)
+        def _cli() -> None:
+            pass
+
+        @_cli.command(
+            name="run",
+            short_help="Run the service.",
+            help=cls.__description__,
+        )
         @typed_settings.click_options(
             settings_cls=cls._settings_cls,
             loaders=kebabize(cls.__name__),
@@ -213,4 +221,4 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
             service = cls(settings=settings)
             asyncio.run(service.run())
 
-        _run()
+        _cli()
