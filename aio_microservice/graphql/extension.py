@@ -91,7 +91,7 @@ class GraphqlExtension(ExtensionABC):
         self.register_http_controller(self.graphql._graphql_controller)
 
     @startup_message
-    async def _amqp_startup_message(self) -> str:
+    async def _graphql_startup_message(self) -> str:
         return """
             # Graphql
 
@@ -101,5 +101,5 @@ class GraphqlExtension(ExtensionABC):
         """
 
     @http.get(path="schema/graphql.graphql", include_in_schema=False)
-    async def _get_graphql_schema(self) -> str:
+    async def _graphql_get_schema(self) -> str:
         return print_schema(self.__graphql_schema__)
