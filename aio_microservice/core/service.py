@@ -200,20 +200,17 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
         await self._uvicorn_server.serve()
 
     @classmethod
-    def _cli_run(cls, settings: ServiceSettingsT) -> None:
-        loglevel = logging.DEBUG if settings.debug else logging.INFO
-        setup_logging(level=loglevel)
-        service = cls(settings=settings)
-        asyncio.run(service.run())
-
-    @classmethod
     def cli(cls) -> None:
-        click_options = typed_settings.click_options(
+        @click.command(help=cls.__description__)
+        @typed_settings.click_options(
             settings_cls=cls._settings_cls,
             loaders=kebabize(cls.__name__),
             show_envvars_in_help=True,
         )
-        wrapped = click_options(lambda settings: cls._cli_run(settings=settings))
-        click_wrapper = click.command(help=cls.__description__)
-        click_command = click_wrapper(wrapped)
-        click_command()
+        def _run(settings: ServiceSettingsT) -> None:
+            loglevel = logging.DEBUG if settings.debug else logging.INFO
+            setup_logging(level=loglevel)
+            service = cls(settings=settings)
+            asyncio.run(service.run())
+
+        _run()
