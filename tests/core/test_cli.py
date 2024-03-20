@@ -65,6 +65,23 @@ def test_cli_help_service_description(
     assert "TEST SERVICE DESCRIPTION" in captured.out
 
 
+def test_cli_help_service_version(
+    capsys: pytest.CaptureFixture[str],
+    mocker: MockerFixture,
+) -> None:
+    class TestService(Service[ServiceSettings]):
+        __version__ = "1.2.3"
+
+    mocker.patch.dict("os.environ", {"NO_COLOR": "1", "TERM": "dumb"})
+    mocker.patch("sys.argv", ["test-service", "version"])
+
+    with pytest.raises(SystemExit):
+        TestService.cli()
+
+    captured = capsys.readouterr()
+    assert captured.out == "1.2.3\n"
+
+
 def test_cli_run(mocker: MockerFixture) -> None:
     class TestService(Service[ServiceSettings]): ...
 

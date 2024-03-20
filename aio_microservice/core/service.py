@@ -206,6 +206,13 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
             pass
 
         @_cli.command(
+            name="version",
+            short_help="Print version of the service.",
+        )
+        def _version() -> None:
+            print(cls.__version__)  # noqa: T201
+
+        @_cli.command(
             name="run",
             short_help="Run the service.",
             help=cls.__description__,
