@@ -172,8 +172,6 @@ async def test_amqp_prefetch_count_one(
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
     class TestService(Service[TestSettings], AmqpExtension):
-        __amqp_prefetch_count__ = 1
-
         def __init__(self, settings: TestSettings | None = None) -> None:
             super().__init__(settings=settings)
             self.keep_running = True
@@ -185,7 +183,13 @@ async def test_amqp_prefetch_count_one(
                 await asyncio.sleep(0.1)
             handler_post_stub()
 
-    settings = TestSettings(amqp=AmqpSettings(host=rabbitmq_ip, port=rabbitmq_port))
+    settings = TestSettings(
+        amqp=AmqpSettings(
+            host=rabbitmq_ip,
+            port=rabbitmq_port,
+            prefetch_count=1,
+        ),
+    )
     service = TestService(settings=settings)
 
     async with TestAmqpBroker(service, with_real=True) as amqp_broker:
@@ -262,8 +266,6 @@ async def test_amqp_graceful_timeout_lower_than_handler_duration(
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
     class TestService(Service[TestSettings], AmqpExtension):
-        __amqp_graceful_timeout__ = 0.1
-
         @amqp.subscriber(queue="test-subscriber-queue")
         async def handle_test(self) -> None:
             handler_pre_stub()
@@ -274,7 +276,13 @@ async def test_amqp_graceful_timeout_lower_than_handler_duration(
             else:
                 handler_post_stub()
 
-    settings = TestSettings(amqp=AmqpSettings(host=rabbitmq_ip, port=rabbitmq_port))
+    settings = TestSettings(
+        amqp=AmqpSettings(
+            host=rabbitmq_ip,
+            port=rabbitmq_port,
+            timeout_graceful_shutdown=0.1,
+        ),
+    )
     service = TestService(settings=settings)
 
     publish_task = None
@@ -306,8 +314,6 @@ async def test_amqp_graceful_timeout_higher_handler_duration(
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
     class TestService(Service[TestSettings], AmqpExtension):
-        __amqp_graceful_timeout__ = 1.0
-
         @amqp.subscriber(queue="test-subscriber-queue")
         async def handle_test(self) -> None:
             handler_pre_stub()
@@ -318,7 +324,13 @@ async def test_amqp_graceful_timeout_higher_handler_duration(
             else:
                 handler_post_stub()
 
-    settings = TestSettings(amqp=AmqpSettings(host=rabbitmq_ip, port=rabbitmq_port))
+    settings = TestSettings(
+        amqp=AmqpSettings(
+            host=rabbitmq_ip,
+            port=rabbitmq_port,
+            timeout_graceful_shutdown=1.0,
+        ),
+    )
     service = TestService(settings=settings)
 
     publish_task = None
