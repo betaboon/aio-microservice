@@ -35,6 +35,10 @@ class HttpSettings(BaseModel):
         default=8080,
         description="The port to bind to.",
     )
+    timeout_keep_alive: int = Field(
+        default=5,
+        description="Close Keep-Alive connections if no new data is received within this timeout.",
+    )
 
 
 class ServiceSettings(BaseModel):
@@ -142,6 +146,7 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
             app=litestar_app,
             host=self.settings.http.host,
             port=self.settings.http.port,
+            timeout_keep_alive=self.settings.http.timeout_keep_alive,
             log_config=None,
             log_level=logging.DEBUG if self.settings.debug else logging.INFO,
         )
