@@ -41,6 +41,14 @@ class AmqpSettings(BaseModel):
         default=SecretStr("guest"),
         description="The password for authentication on the broker.",
     )
+    prefetch_count: int | None = Field(
+        default=None,
+        description="The prefetch window size.",
+    )
+    timeout_graceful_shutdown: float | None = Field(
+        default=None,
+        description="The timeout for graceful shutdown (in seconds).",
+    )
 
 
 class AmqpExtensionImpl:
@@ -53,8 +61,8 @@ class AmqpExtensionImpl:
             login=self._settings.username,
             password=self._settings.password.get_secret_value(),
             middlewares=service.__amqp_middlewares__,
-            max_consumers=service.__amqp_prefetch_count__,
-            graceful_timeout=service.__amqp_graceful_timeout__,
+            max_consumers=self._settings.prefetch_count,
+            graceful_timeout=self._settings.timeout_graceful_shutdown,
         )
         self._faststream_app = FastStream(
             broker=self._faststream_rabbit_broker,
@@ -115,8 +123,6 @@ class AmqpExtensionSettings(BaseModel):
 
 class AmqpExtension(ExtensionABC):
     __amqp_middlewares__: ClassVar[list[type[BaseMiddleware]]] = []
-    __amqp_prefetch_count__: ClassVar[int | None] = None
-    __amqp_graceful_timeout__: ClassVar[float | None] = None
 
     def __init__(self, settings: AmqpExtensionSettings) -> None:
         self.amqp = AmqpExtensionImpl(service=self, settings=settings.amqp)
