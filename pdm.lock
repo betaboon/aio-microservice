@@ -5,7 +5,7 @@
 groups = ["default", "all", "amqp", "docs", "linting", "s3", "scheduler", "testing", "graphql"]
 strategy = ["cross_platform"]
 lock_version = "4.4.1"
-content_hash = "sha256:35a039529915390b158e08eea386b84df872452c8f6cd0d10b7b229a67b3f84c"
+content_hash = "sha256:ac607ee3238bf96d77b8a3471ff52037ce36202aa35df719ccd90ab860b07aab"
 
 [[package]]
 name = "aio-pika"

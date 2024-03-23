@@ -1,3 +1,8 @@
+import asyncio
+
+import pytest
+from pytest_mock import MockerFixture
+
 from aio_microservice import Service, ServiceSettings, amqp, http
 from aio_microservice.amqp import AmqpExtension, AmqpExtensionSettings, TestAmqpBroker
 from aio_microservice.http import TestHttpClient
@@ -46,6 +51,50 @@ async def test_amqp_asyncapi_schema_download_yaml() -> None:
         response = await http_client.get("/schema/asyncapi.yaml")
         assert response.status_code == http.status_codes.HTTP_200_OK
         assert "test-subscriber-queue:_:HandleTest" in response.text
+
+
+def test_amqp_asyncapi_schema_export_json(
+    event_loop: asyncio.AbstractEventLoop,
+    capsys: pytest.CaptureFixture[str],
+    mocker: MockerFixture,
+) -> None:
+    class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
+
+    class TestService(Service[TestSettings], AmqpExtension):
+        @amqp.subscriber(queue="test-subscriber-queue")
+        async def handle_test(self, message: str) -> None:
+            pass
+
+    mocker.patch.dict("os.environ", {"NO_COLOR": "1", "TERM": "dumb"})
+    mocker.patch("sys.argv", ["test-service", "schema", "asyncapi", "--format", "json"])
+
+    with pytest.raises(SystemExit):
+        TestService.cli()
+
+    captured = capsys.readouterr()
+    assert "test-subscriber-queue:_:HandleTest" in captured.out
+
+
+def test_amqp_asyncapi_schema_export_yaml(
+    event_loop: asyncio.AbstractEventLoop,
+    capsys: pytest.CaptureFixture[str],
+    mocker: MockerFixture,
+) -> None:
+    class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
+
+    class TestService(Service[TestSettings], AmqpExtension):
+        @amqp.subscriber(queue="test-subscriber-queue")
+        async def handle_test(self, message: str) -> None:
+            pass
+
+    mocker.patch.dict("os.environ", {"NO_COLOR": "1", "TERM": "dumb"})
+    mocker.patch("sys.argv", ["test-service", "schema", "asyncapi", "--format", "yaml"])
+
+    with pytest.raises(SystemExit):
+        TestService.cli()
+
+    captured = capsys.readouterr()
+    assert "test-subscriber-queue:_:HandleTest" in captured.out
 
 
 async def test_amqp_asyncapi_service_description() -> None:

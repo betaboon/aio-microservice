@@ -4,6 +4,7 @@ import inspect
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeVar
 
 from faststream import BaseMiddleware, FastStream
+from faststream.asyncapi.generate import get_app_schema
 from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
 from loguru import logger
 from pydantic import BaseModel, Field, SecretStr
@@ -13,6 +14,7 @@ from aio_microservice.amqp.asyncapi import make_asyncapi_controller
 from aio_microservice.core.abc import (
     ExtensionABC,
     readiness_probe,
+    schema_export,
     shutdown_hook,
     startup_hook,
     startup_message,
@@ -156,6 +158,14 @@ class AmqpExtension(ExtensionABC):
             # faststream maintainer says, they will provide functionality like this.
             return self.amqp._faststream_rabbit_broker._connection.connected.is_set()
         return False  # pragma: no cover
+
+    @schema_export(schema_type="asyncapi", schema_format="json")
+    async def _amqp_export_schema_json(self) -> str:
+        return get_app_schema(self.amqp._faststream_app).to_json()
+
+    @schema_export(schema_type="asyncapi", schema_format="yaml")
+    async def _amqp_export_schema_yaml(self) -> str:
+        return get_app_schema(self.amqp._faststream_app).to_yaml()
 
 
 AmqpExtensionT = TypeVar("AmqpExtensionT", bound=AmqpExtension)
