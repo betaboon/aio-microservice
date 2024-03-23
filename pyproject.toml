@@ -222,6 +222,7 @@ source = ["aio_microservice"]
 omit = ["aio_microservice/__version__.py"]
 
 [tool.coverage.report]
+fail_under = 100
 exclude_also = [
     'if\s+(typing\.)?TYPE_CHECKING:',
 ]
