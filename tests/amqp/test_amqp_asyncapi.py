@@ -18,7 +18,7 @@ async def test_amqp_asyncapi_ui() -> None:
         assert "test-subscriber-queue:_:HandleTest" in response.text
 
 
-async def test_amqp_asyncapi_json() -> None:
+async def test_amqp_asyncapi_schema_download_json() -> None:
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
     class TestService(Service[TestSettings], AmqpExtension):
@@ -33,7 +33,7 @@ async def test_amqp_asyncapi_json() -> None:
         assert "test-subscriber-queue:_:HandleTest" in response.json()["channels"]
 
 
-async def test_amqp_asyncapi_yaml() -> None:
+async def test_amqp_asyncapi_schema_download_yaml() -> None:
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
     class TestService(Service[TestSettings], AmqpExtension):
@@ -48,7 +48,7 @@ async def test_amqp_asyncapi_yaml() -> None:
         assert "test-subscriber-queue:_:HandleTest" in response.text
 
 
-async def test_http_asyncapi_service_description() -> None:
+async def test_amqp_asyncapi_service_description() -> None:
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
     class TestService(Service[TestSettings], AmqpExtension):
@@ -61,7 +61,7 @@ async def test_http_asyncapi_service_description() -> None:
         assert response.json()["info"]["description"] == TestService.__description__
 
 
-async def test_http_asyncapi_service_version() -> None:
+async def test_amqp_asyncapi_service_version() -> None:
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
     class TestService(Service[TestSettings], AmqpExtension):
