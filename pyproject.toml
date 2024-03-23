@@ -38,6 +38,7 @@ dependencies = [
     "loguru>=0.7.2",
     "pydantic>=2.6.3",
     "pyhumps>=3.8.0",
+    "pyyaml>=6.0.1",
     "rich-click>=1.7.3",
     "rich>=13.7.1",
     "typed-settings>=24.1.0",
@@ -48,10 +49,10 @@ dependencies = [
 [project.optional-dependencies]
 amqp = [
     "faststream[rabbit]>=0.4.6",
-    "pyyaml>=6.0.1",
 ]
 all = [
     "aio-microservice[amqp]",
+    "aio-microservice[graphql]",
     "aio-microservice[s3]",
     "aio-microservice[scheduler]",
 ]
@@ -221,6 +222,7 @@ source = ["aio_microservice"]
 omit = ["aio_microservice/__version__.py"]
 
 [tool.coverage.report]
+fail_under = 100
 exclude_also = [
     'if\s+(typing\.)?TYPE_CHECKING:',
 ]

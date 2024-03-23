@@ -10,6 +10,7 @@ from aio_microservice.core.abc import (
     CommonABC,
     CommonABCT,
     ExtensionABC,
+    schema_export,
     startup_message,
 )
 
@@ -102,4 +103,8 @@ class GraphqlExtension(ExtensionABC):
 
     @http.get(path="schema/graphql.graphql", include_in_schema=False)
     async def _graphql_get_schema(self) -> str:
+        return print_schema(self.__graphql_schema__)
+
+    @schema_export(schema_type="graphql", schema_format="graphql")
+    async def _graphql_export_schema(self) -> str:
         return print_schema(self.__graphql_schema__)

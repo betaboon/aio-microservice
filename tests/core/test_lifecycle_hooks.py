@@ -14,10 +14,10 @@ from aio_microservice.http import TestHttpClient
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
-    from pytest_mock import MockFixture
+    from pytest_mock import MockerFixture
 
 
-async def test_startup_hook(mocker: MockFixture) -> None:
+async def test_startup_hook(mocker: MockerFixture) -> None:
     class TestService(Service[ServiceSettings]):
         def __init__(self, settings: ServiceSettings | None = None) -> None:
             super().__init__(settings=settings)
@@ -34,7 +34,7 @@ async def test_startup_hook(mocker: MockFixture) -> None:
     service.startup_hook_stub.assert_called_once()
 
 
-async def test_startup_hook_stacking(mocker: MockFixture) -> None:
+async def test_startup_hook_stacking(mocker: MockerFixture) -> None:
     class TestService(Service[ServiceSettings]):
         def __init__(self, settings: ServiceSettings | None = None) -> None:
             super().__init__(settings=settings)
@@ -58,7 +58,7 @@ async def test_startup_hook_stacking(mocker: MockFixture) -> None:
     service.startup_hook_2_stub.assert_called_once()
 
 
-async def test_shutdown_hook(mocker: MockFixture) -> None:
+async def test_shutdown_hook(mocker: MockerFixture) -> None:
     class TestService(Service[ServiceSettings]):
         def __init__(self, settings: ServiceSettings | None = None) -> None:
             super().__init__(settings=settings)
@@ -75,7 +75,7 @@ async def test_shutdown_hook(mocker: MockFixture) -> None:
     service.shutdown_hook_stub.assert_called_once()
 
 
-async def test_shutdown_hook_stacking(mocker: MockFixture) -> None:
+async def test_shutdown_hook_stacking(mocker: MockerFixture) -> None:
     class TestService(Service[ServiceSettings]):
         def __init__(self, settings: ServiceSettings | None = None) -> None:
             super().__init__(settings=settings)
@@ -99,7 +99,7 @@ async def test_shutdown_hook_stacking(mocker: MockFixture) -> None:
     service.shutdown_hook_2_stub.assert_called_once()
 
 
-async def test_lifespan_hook(mocker: MockFixture) -> None:
+async def test_lifespan_hook(mocker: MockerFixture) -> None:
     class TestService(Service[ServiceSettings]):
         def __init__(self, settings: ServiceSettings | None = None) -> None:
             super().__init__(settings=settings)
@@ -121,7 +121,7 @@ async def test_lifespan_hook(mocker: MockFixture) -> None:
     service.shutdown_hook_stub.assert_called_once()
 
 
-async def test_lifespan_hook_stacking(mocker: MockFixture) -> None:
+async def test_lifespan_hook_stacking(mocker: MockerFixture) -> None:
     class TestService(Service[ServiceSettings]):
         def __init__(self, settings: ServiceSettings | None = None) -> None:
             super().__init__(settings=settings)

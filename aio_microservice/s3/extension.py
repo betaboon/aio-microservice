@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 class S3Settings(BaseModel):
     endpoint_url: str = Field(
-        description="The URL to connet to.",
+        description="The URL to connect to.",
     )
     access_key_id: str = Field(
         description="The AWS access key ID used for authentication.",
@@ -56,7 +56,12 @@ class S3ExtensionImpl:
 
 
 class S3ExtensionSettings(BaseModel):
-    s3: S3Settings
+    # NOTE the default values are required for schema-export
+    s3: S3Settings = S3Settings(
+        endpoint_url="http://dummy",
+        access_key_id="dummy",
+        secret_access_key="dummy",  # noqa: S106
+    )
 
 
 class S3Extension(ExtensionABC):
