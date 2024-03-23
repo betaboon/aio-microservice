@@ -52,6 +52,7 @@ amqp = [
 ]
 all = [
     "aio-microservice[amqp]",
+    "aio-microservice[graphql]",
     "aio-microservice[s3]",
     "aio-microservice[scheduler]",
 ]
