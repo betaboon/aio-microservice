@@ -36,15 +36,22 @@ class _SchemaWrapper:
         self,
         query: str | None,
         variable_values: dict[str, Any] | None = None,
+        context_value: BaseContext | None = None,
         root_value: Any | None = None,  # noqa: ANN401
         operation_name: str | None = None,
         allowed_operation_types: Iterable[OperationType] | None = None,
     ) -> ExecutionResult:
-        context_value: GraphqlContext[CommonABC] = await self._service.graphql._context_getter()
+        wrapped_context_value: GraphqlContext[
+            CommonABC
+        ] = await self._service.graphql._context_getter()
+        if context_value is not None:
+            wrapped_context_value.request = context_value.request
+            wrapped_context_value.websocket = context_value.websocket
+            wrapped_context_value.response = context_value.response
         return await self._schema.execute(
             query=query,
             variable_values=variable_values,
-            context_value=context_value,
+            context_value=wrapped_context_value,
             root_value=root_value,
             operation_name=operation_name,
             allowed_operation_types=allowed_operation_types,
@@ -54,14 +61,21 @@ class _SchemaWrapper:
         self,
         query: str,
         variable_values: dict[str, Any] | None = None,
+        context_value: BaseContext | None = None,
         root_value: Any | None = None,  # noqa: ANN401
         operation_name: str | None = None,
     ) -> AsyncIterator[GraphQLExecutionResult] | GraphQLExecutionResult:
-        context_value: GraphqlContext[CommonABC] = await self._service.graphql._context_getter()
+        wrapped_context_value: GraphqlContext[
+            CommonABC
+        ] = await self._service.graphql._context_getter()
+        if context_value is not None:
+            wrapped_context_value.request = context_value.request
+            wrapped_context_value.websocket = context_value.websocket
+            wrapped_context_value.response = context_value.response
         return await self._schema.subscribe(
             query=query,
             variable_values=variable_values,
-            context_value=context_value,
+            context_value=wrapped_context_value,
             root_value=root_value,
             operation_name=operation_name,
         )
