@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
-import pathlib
 import typing
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from functools import partial
@@ -15,12 +13,11 @@ import rich
 import rich_click as click
 import typed_settings
 import uvicorn
-import yaml  # type: ignore
 from humps import kebabize
 from loguru import logger
 from pydantic import BaseModel, Field
 
-from aio_microservice.core.abc import ServiceABC, schema_export, startup_message
+from aio_microservice.core.abc import ServiceABC, startup_message
 from aio_microservice.core.logging import setup_logging
 from aio_microservice.core.openapi import OpenAPIController
 from aio_microservice.types import Port  # noqa: TCH001
@@ -197,23 +194,13 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
             - {scheme}://{host}:{port}/schema/openapi.yaml
         """
 
-    @schema_export(schema_type="openapi", schema_format="json")
-    async def _core_export_schema_json(self) -> str:
-        schema = self._litestar_app.openapi_schema.to_schema()
-        return json.dumps(schema, separators=(",", ":"))
-
-    @schema_export(schema_type="openapi", schema_format="yaml")
-    async def _core_export_schema_yaml(self) -> str:
-        schema = self._litestar_app.openapi_schema.to_schema()
-        return yaml.dump(schema)  # type: ignore
-
     async def run(self) -> None:
         logger.info(f"Starting Service: {self.__class__.__name__}")
         logger.info(f"Using Settings: {self.settings}")
         await self._uvicorn_server.serve()
 
     @classmethod
-    def cli(cls) -> None:  # noqa: C901
+    def cli(cls) -> None:
         @click.group(help=cls.__description__)
         def _cli() -> None:
             pass
@@ -240,53 +227,5 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
             setup_logging(level=loglevel)
             service = cls(settings=settings)
             asyncio.run(service.run())
-
-        service = cls()
-        if not len(service._schema_exports):
-            _cli()  # pragma: no cover
-
-        @_cli.group(name="schema", help="Export API schema.")
-        def _schema() -> None:
-            pass
-
-        schema_export_map: dict[str, dict[str, schema_export]] = {}
-
-        for _schema_export in service._schema_exports:
-            schema_type = _schema_export.schema_type
-            schema_format = _schema_export.schema_format
-            if schema_type not in schema_export_map:
-                schema_export_map[schema_type] = {}
-            schema_export_map[schema_type][schema_format] = _schema_export
-
-        for schema_type in schema_export_map:
-            schema_formats = list(schema_export_map[schema_type].keys())
-
-            @_schema.command(
-                name=schema_type,
-                help=f"Export {schema_type} schema.",
-            )
-            @click.option(
-                "--format",
-                "schema_format",
-                type=click.Choice(schema_formats),
-                default=schema_formats[0],
-            )
-            @click.option(
-                "--output",
-                type=click.Path(dir_okay=False, writable=True, path_type=pathlib.Path),
-                default=None,
-            )
-            def export_schema(
-                schema_format: str,
-                output: pathlib.Path | None,
-                schema_type: str = schema_type,
-            ) -> None:
-                # NOTE passing in schema_type as default-argument to bind loop-variable
-                _schema_export = schema_export_map[schema_type][schema_format]
-                schema = asyncio.run(_schema_export.fn(service))  # type: ignore
-                if output:
-                    output.write_text(schema)
-                else:
-                    print(schema.rstrip())  # noqa: T201
 
         _cli()
