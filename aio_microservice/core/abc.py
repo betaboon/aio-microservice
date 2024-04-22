@@ -24,7 +24,6 @@ class CommonABC(ABC):
         self._readiness_probes: list[readiness_probe] = []
         self._liveness_probes: list[liveness_probe] = []
         self._startup_messages: list[startup_message] = []
-        self._schema_exports: list[schema_export] = []
         self._litestar_http_route_handlers: list[litestar.handlers.HTTPRouteHandler] = []
         self._litestar_http_controllers: list[litestar.types.ControllerRouterHandler] = []
         self._litestar_listeners: list[litestar.events.EventListener] = []
@@ -34,7 +33,7 @@ class CommonABC(ABC):
 
         self._collect_decorated_functions()
 
-    def _collect_decorated_functions(self) -> None:  # noqa: C901
+    def _collect_decorated_functions(self) -> None:
         for _, attribute in inspect.getmembers(self.__class__):
             if isinstance(attribute, startup_hook):
                 self._startup_hooks.append(attribute)
@@ -48,8 +47,6 @@ class CommonABC(ABC):
                 self._liveness_probes.append(attribute)
             elif isinstance(attribute, startup_message):
                 self._startup_messages.append(attribute)
-            elif isinstance(attribute, schema_export):
-                self._schema_exports.append(attribute)
             elif isinstance(attribute, litestar.handlers.HTTPRouteHandler):
                 self._litestar_http_route_handlers.append(attribute)
             elif isinstance(attribute, litestar.events.EventListener):
@@ -155,22 +152,3 @@ class startup_message:  # noqa: N801
 
     async def __call__(self, service: CommonABCT) -> str:
         return await self.fn(service)
-
-
-class schema_export:  # noqa: N801
-    MARKER = "_core_schema_export"
-
-    def __init__(
-        self,
-        schema_type: str,
-        schema_format: str,
-    ) -> None:
-        self.schema_type = schema_type
-        self.schema_format = schema_format
-
-    def __call__(
-        self,
-        fn: Callable[[CommonABCT], Awaitable[str]],
-    ) -> schema_export:
-        self.fn = fn
-        return self
