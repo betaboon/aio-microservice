@@ -25,7 +25,7 @@ async def test_scheduler_interval(mocker: MockerFixture) -> None:
     async with TestHttpClient(service=service):
         await asyncio.sleep(2.5)
 
-    assert 2 <= len(service.do_every_second_stub.call_args_list) <= 3
+    assert len(service.do_every_second_stub.call_args_list) == 3
 
 
 async def test_scheduler_cron(mocker: MockerFixture) -> None:
@@ -45,7 +45,7 @@ async def test_scheduler_cron(mocker: MockerFixture) -> None:
     assert 2 <= len(service.do_every_second_stub.call_args_list) <= 3
 
 
-async def test_scheduler_crontab(mocker: MockerFixture) -> None:
+def test_scheduler_crontab() -> None:
     class TestService(Service[ServiceSettings], SchedulerExtension):
         @scheduler.crontab(expression="* * * * *")
         async def do_every_minute(self) -> None:

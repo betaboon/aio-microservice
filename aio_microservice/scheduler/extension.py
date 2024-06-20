@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import inspect
-from datetime import timezone
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Callable, TypeVar
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  # type: ignore
@@ -78,7 +78,15 @@ class SchedulerExtensionImpl:
             minutes=minutes,
             seconds=seconds,
         )
-        self._scheduler.add_job(func=fn, trigger=trigger)
+        self._scheduler.add_job(
+            func=fn,
+            trigger=trigger,
+            # Note: v3.x only starts _after_ the interval passed, while v4.x will run now and after
+            # every interval
+            # See https://github.com/agronholm/apscheduler/issues/97#issuecomment-985035673
+            # TODO remove this when upgrading to v4.x
+            next_run_time=datetime.now(tz=timezone.utc),
+        )
 
     def add_cron(
         self,
