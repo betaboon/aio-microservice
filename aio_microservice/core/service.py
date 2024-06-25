@@ -9,7 +9,8 @@ from textwrap import dedent
 from typing import Any, Callable, ClassVar, Generic, TypeVar
 
 import litestar.config.cors
-import rich
+import rich.console
+import rich.markdown
 import rich_click as click
 import typed_settings
 import uvicorn

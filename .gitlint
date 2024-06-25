@@ -1,0 +1,6 @@
+[general]
+contrib=contrib-title-conventional-commits
+ignore = body-is-missing
+
+[title-max-length]
+line-length = 100
