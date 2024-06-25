@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable, ClassVar, TypeVar
 
 from faststream import BaseMiddleware, FastStream
@@ -184,27 +185,17 @@ class AmqpDecorator:
 
 
 # TODO support all faststream decorator options
+@dataclass
 class subscriber(AmqpDecorator):  # noqa: N801
-    def __init__(
-        self,
-        queue: RabbitQueue | str,
-        exchange: RabbitExchange | str | None = None,
-        reply_config: ReplyConfig | None = None,
-        no_ack: bool = False,
-        retry: bool | int = False,
-        # AsyncAPI information
-        title: str | None = None,
-        description: str | None = None,
-        include_in_schema: bool = True,
-    ) -> None:
-        self.queue = queue
-        self.exchange = exchange
-        self.reply_config = reply_config
-        self.no_ack = no_ack
-        self.retry = retry
-        self.title = title
-        self.description = description
-        self.include_in_schema = include_in_schema
+    queue: RabbitQueue | str
+    exchange: RabbitExchange | str | None = None
+    reply_config: ReplyConfig | None = None
+    no_ack: bool = False
+    retry: bool | int = False
+    # AsyncAPI information
+    title: str | None = None
+    description: str | None = None
+    include_in_schema: bool = True
 
     def __call__(
         self,
@@ -216,35 +207,21 @@ class subscriber(AmqpDecorator):  # noqa: N801
         return fn
 
 
+@dataclass
 class publisher(AmqpDecorator):  # noqa: N801
-    def __init__(
-        self,
-        queue: RabbitQueue | str = "",
-        exchange: RabbitExchange | str | None = None,
-        routing_key: str = "",
-        reply_to: str | None = None,
-        mandatory: bool = True,
-        immediate: bool = False,
-        persist: bool = False,
-        timeout: TimeoutType = None,
-        priority: int | None = None,
-        # AsyncAPI information
-        title: str | None = None,
-        description: str | None = None,
-        include_in_schema: bool = True,
-    ) -> None:
-        self.queue = queue
-        self.exchange = exchange
-        self.routing_key = routing_key
-        self.reply_to = reply_to
-        self.mandatory = mandatory
-        self.immediate = immediate
-        self.persist = persist
-        self.timeout = timeout
-        self.priority = priority
-        self.title = title
-        self.description = description
-        self.include_in_schema = include_in_schema
+    queue: RabbitQueue | str = ""
+    exchange: RabbitExchange | str | None = None
+    routing_key: str = ""
+    reply_to: str | None = None
+    mandatory: bool = True
+    immediate: bool = False
+    persist: bool = False
+    timeout: TimeoutType = None
+    priority: int | None = None
+    # AsyncAPI information
+    title: str | None = None
+    description: str | None = None
+    include_in_schema: bool = True
 
     def __call__(
         self,
