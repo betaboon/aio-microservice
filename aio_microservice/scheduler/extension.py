@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Callable, TypeVar
 
@@ -145,20 +146,13 @@ class SchedulerDecorator:
     MARKER = "_scheduler_decorator"
 
 
+@dataclass
 class interval(SchedulerDecorator):  # noqa: N801
-    def __init__(
-        self,
-        weeks: int = 0,
-        days: int = 0,
-        hours: int = 0,
-        minutes: int = 0,
-        seconds: int = 0,
-    ) -> None:
-        self.weeks = weeks
-        self.days = days
-        self.hours = hours
-        self.minutes = minutes
-        self.seconds = seconds
+    weeks: int = 0
+    days: int = 0
+    hours: int = 0
+    minutes: int = 0
+    seconds: int = 0
 
     def __call__(
         self,
@@ -170,26 +164,16 @@ class interval(SchedulerDecorator):  # noqa: N801
         return fn
 
 
+@dataclass
 class cron(SchedulerDecorator):  # noqa: N801
-    def __init__(
-        self,
-        year: int | str | None = None,
-        month: int | str | None = None,
-        day: int | str | None = None,
-        week: int | str | None = None,
-        day_of_week: int | str | None = None,
-        hour: int | str | None = None,
-        minute: int | str | None = None,
-        second: int | str | None = None,
-    ) -> None:
-        self.year = year
-        self.month = month
-        self.day = day
-        self.week = week
-        self.day_of_week = day_of_week
-        self.hour = hour
-        self.minute = minute
-        self.second = second
+    year: int | str | None = None
+    month: int | str | None = None
+    day: int | str | None = None
+    week: int | str | None = None
+    day_of_week: int | str | None = None
+    hour: int | str | None = None
+    minute: int | str | None = None
+    second: int | str | None = None
 
     def __call__(
         self,
@@ -201,9 +185,9 @@ class cron(SchedulerDecorator):  # noqa: N801
         return fn
 
 
+@dataclass
 class crontab(SchedulerDecorator):  # noqa: N801
-    def __init__(self, expression: str) -> None:
-        self.expression = expression
+    expression: str
 
     def __call__(
         self,
