@@ -121,6 +121,30 @@ async def test_amqp_test_broker_publisher_instance_pydantic() -> None:
         assert published_messages[0] == Response(message="TEST-RESPONSE", number=42).model_dump()
 
 
+async def test_amqp_test_broker_publisher_instance_to_exchange() -> None:
+    class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
+
+    class TestService(Service[TestSettings], AmqpExtension):
+        def __init__(self, settings: TestSettings | None = None) -> None:
+            super().__init__(settings=settings)
+            self.publisher = self.amqp.broker.publisher(
+                exchange="test-publisher-exchange",
+            )
+
+        @amqp.subscriber(queue="test-subscriber-queue")
+        async def handle_test(self, message: str) -> None:
+            await self.publisher.publish("TEST-RESPONSE")
+
+    service = TestService()
+
+    async with TestAmqpBroker(service) as amqp_broker:
+        await amqp_broker.publish(queue="test-subscriber-queue", message="TEST-REQUEST")
+
+        published_messages = amqp_broker.get_published_messages(exchange="test-publisher-exchange")
+        assert len(published_messages) == 1
+        assert published_messages[0] == "TEST-RESPONSE"
+
+
 async def test_amqp_test_broker_reset_published_messages() -> None:
     class TestSettings(ServiceSettings, AmqpExtensionSettings): ...
 
