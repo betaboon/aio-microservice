@@ -5,7 +5,7 @@
 groups = ["default", "all", "amqp", "docs", "linting", "s3", "scheduler", "testing", "graphql"]
 strategy = ["cross_platform"]
 lock_version = "4.4.1"
-content_hash = "sha256:7ef0482a0e349af1decd5a3bb4b83a5c8d11c6a0ab23357b04b73abd71bc0a05"
+content_hash = "sha256:5876c8e23d5a1a1e6007421cdd0cbd67dbfa49810ec996b4b4c444c9738c4333"
 
 [[package]]
 name = "aio-pika"
@@ -495,33 +495,33 @@ files = [
 
 [[package]]
 name = "faststream"
-version = "0.4.7"
+version = "0.5.13"
 requires_python = ">=3.8"
 summary = "FastStream: the simplest way to work with a messaging queues"
 dependencies = [
     "anyio<5,>=3.7.1",
     "fast-depends<2.5.0,>=2.4.0b0",
-    "typer<1,>=0.9",
+    "typer!=0.12,<1,>=0.9",
     "typing-extensions>=4.8.0",
 ]
 files = [
-    {file = "faststream-0.4.7-py3-none-any.whl", hash = "sha256:2f35bc1cf236807a93a078b79018a4a6e4636b5581fd9a91bd3b511dddc854ba"},
-    {file = "faststream-0.4.7.tar.gz", hash = "sha256:f404c1f350dee5742ce64c111526a80e0d984ce7964a04d0f2ec71beb7d982de"},
+    {file = "faststream-0.5.13-py3-none-any.whl", hash = "sha256:2d8dcd46b7bb3b63fe135b498cac6014fbbf062c80770285e46878c704d7f325"},
+    {file = "faststream-0.5.13.tar.gz", hash = "sha256:6e0c4f9d1bba334c739e8a8fb41ce049428bbf89986515fc54cd848c344a8df4"},
 ]
 
 [[package]]
 name = "faststream"
-version = "0.4.7"
+version = "0.5.13"
 extras = ["rabbit"]
 requires_python = ">=3.8"
 summary = "FastStream: the simplest way to work with a messaging queues"
 dependencies = [
     "aio-pika<10,>=9",
-    "faststream==0.4.7",
+    "faststream==0.5.13",
 ]
 files = [
-    {file = "faststream-0.4.7-py3-none-any.whl", hash = "sha256:2f35bc1cf236807a93a078b79018a4a6e4636b5581fd9a91bd3b511dddc854ba"},
-    {file = "faststream-0.4.7.tar.gz", hash = "sha256:f404c1f350dee5742ce64c111526a80e0d984ce7964a04d0f2ec71beb7d982de"},
+    {file = "faststream-0.5.13-py3-none-any.whl", hash = "sha256:2d8dcd46b7bb3b63fe135b498cac6014fbbf062c80770285e46878c704d7f325"},
+    {file = "faststream-0.5.13.tar.gz", hash = "sha256:6e0c4f9d1bba334c739e8a8fb41ce049428bbf89986515fc54cd848c344a8df4"},
 ]
 
 [[package]]

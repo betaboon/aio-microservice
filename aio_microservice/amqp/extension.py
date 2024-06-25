@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Callable, ClassVar, TypeVar
 
 from faststream import BaseMiddleware, FastStream
 from faststream.rabbit import RabbitBroker, RabbitExchange, RabbitQueue
+from faststream.security import SASLPlaintext
 from loguru import logger
 from pydantic import BaseModel, Field, SecretStr
 from typing_extensions import Concatenate, ParamSpec
@@ -20,8 +21,8 @@ from aio_microservice.core.abc import (
 from aio_microservice.types import Port  # noqa: TCH001
 
 if TYPE_CHECKING:
-    from faststream.rabbit.shared.schemas import ReplyConfig
-    from faststream.rabbit.shared.types import TimeoutType
+    from aio_pika.abc import TimeoutType
+    from faststream.rabbit.schemas import ReplyConfig
 
 
 class AmqpSettings(BaseModel):
@@ -55,25 +56,39 @@ class AmqpExtensionImpl:
     def __init__(self, service: AmqpExtension, settings: AmqpSettings) -> None:
         self._service = service
         self._settings = settings
-        self._faststream_rabbit_broker = RabbitBroker(
-            host=self._settings.host,
-            port=self._settings.port,
-            login=self._settings.username,
-            password=self._settings.password.get_secret_value(),
-            middlewares=service.__amqp_middlewares__,
-            max_consumers=self._settings.prefetch_count,
-            graceful_timeout=self._settings.timeout_graceful_shutdown,
+        self._faststream_rabbit_broker = self._create_faststream_broker(
+            service=service,
         )
-        self._faststream_app = FastStream(
+        self._faststream_app = self._create_faststream_app(
+            service=service,
             broker=self._faststream_rabbit_broker,
-            title=service.__class__.__name__,
-            version=service.__version__,
-            description=service.__description__,
         )
         self._asyncapi_controller = make_asyncapi_controller(
             app=self._faststream_app,
         )
         self._register_handlers()
+
+    def _create_faststream_broker(self, service: AmqpExtension) -> RabbitBroker:
+        security = SASLPlaintext(
+            username=self._settings.username,
+            password=self._settings.password.get_secret_value(),
+        )
+        return RabbitBroker(
+            host=self._settings.host,
+            port=self._settings.port,
+            security=security,
+            middlewares=service.__amqp_middlewares__,
+            max_consumers=self._settings.prefetch_count,
+            graceful_timeout=self._settings.timeout_graceful_shutdown,
+        )
+
+    def _create_faststream_app(self, service: AmqpExtension, broker: RabbitBroker) -> FastStream:
+        return FastStream(
+            broker=broker,
+            title=service.__class__.__name__,
+            version=service.__version__,
+            description=service.__description__,
+        )
 
     def _register_handlers(self) -> None:
         handler_methods = inspect.getmembers(
@@ -85,7 +100,7 @@ class AmqpExtensionImpl:
             handler_settings = getattr(handler, AmqpDecorator.MARKER)
             for handler_setting in handler_settings:
                 if isinstance(handler_setting, subscriber):
-                    wrapper = self._faststream_rabbit_broker.subscriber(
+                    subscriber_decorator = self._faststream_rabbit_broker.subscriber(
                         queue=handler_setting.queue,
                         exchange=handler_setting.exchange,
                         reply_config=handler_setting.reply_config,
@@ -95,8 +110,9 @@ class AmqpExtensionImpl:
                         description=handler_setting.description,
                         include_in_schema=handler_setting.include_in_schema,
                     )
+                    handler = subscriber_decorator(handler)
                 elif isinstance(handler_setting, publisher):  # pragma: no branch
-                    wrapper = self._faststream_rabbit_broker.publisher(
+                    publisher_decorator = self._faststream_rabbit_broker.publisher(
                         queue=handler_setting.queue,
                         exchange=handler_setting.exchange,
                         routing_key=handler_setting.routing_key,
@@ -110,7 +126,7 @@ class AmqpExtensionImpl:
                         description=handler_setting.description,
                         include_in_schema=handler_setting.include_in_schema,
                     )
-                handler = wrapper(handler)
+                    handler = publisher_decorator(handler)
 
     @property
     def broker(self) -> RabbitBroker:
