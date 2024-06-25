@@ -1,5 +1,7 @@
 import multiprocessing
+import os
 import re
+import signal
 
 import httpx
 import pytest
@@ -96,5 +98,7 @@ def test_cli_run(mocker: MockerFixture) -> None:
     response = client.get("http://localhost:1234/readiness")
     assert response.status_code == http.status_codes.HTTP_200_OK
 
-    p.terminate()
+    # NOTE p.terminate() breaks pipes and thus coverage-reporting
+    assert p.pid is not None
+    os.kill(p.pid, signal.SIGINT)
     p.join()

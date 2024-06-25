@@ -8,7 +8,7 @@ from typing_extensions import override
 from aio_microservice.amqp import AmqpExtension
 
 if TYPE_CHECKING:
-    from faststream.rabbit.asyncapi import Publisher
+    from faststream.rabbit.publisher.asyncapi import AsyncAPIPublisher
 
 ServiceT = TypeVar("ServiceT", bound=AmqpExtension)
 
@@ -26,12 +26,18 @@ class AmqpBroker:
         else:
             setattr(self._faststream_rabbit_broker, attr, val)  # pragma: no cover
 
-    def get_published_messages(self, queue: str) -> list[Any]:
+    def get_published_messages(
+        self,
+        queue: str | None = None,
+        exchange: str | None = None,
+    ) -> list[Any]:
         messages: list[Any] = []
-        publisher: Publisher | None = None
+        publisher: AsyncAPIPublisher | None = None
 
         for p in self._faststream_rabbit_broker._publishers.values():  # pragma: no branch
-            if p.queue.name != queue:
+            if queue is not None and p.queue.name != queue:
+                continue  # pragma: no cover
+            if exchange is not None and p.exchange.name != exchange:
                 continue  # pragma: no cover
             publisher = p
             break
