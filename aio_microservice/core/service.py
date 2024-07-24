@@ -106,6 +106,9 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
     def litestar_app(self) -> litestar.Litestar:
         return self._litestar_app
 
+    def _get_litestar_on_app_init(self) -> list[litestar.types.OnAppInitHandler]:
+        return [partial(fn, self) for fn in self._litestar_on_app_init]
+
     def _get_litestar_on_startup(self) -> list[litestar.types.LifespanHook]:
         fns: list[litestar.types.LifespanHook] = [partial(fn, self) for fn in self._startup_hooks]
         fns.append(self._emit_startup_message)
@@ -175,6 +178,7 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
             max_age=self.settings.http.cors.max_age,
         )
         return litestar.Litestar(
+            on_app_init=self._get_litestar_on_app_init(),
             on_startup=self._get_litestar_on_startup(),
             on_shutdown=self._get_litestar_on_shutdown(),
             lifespan=self._get_litestar_lifespan(),
