@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 class CommonABC(ABC):
     __version__: ClassVar[str] = "1.0.0"
     __description__: ClassVar[str] = ""
-    __http_controllers__: ClassVar[list[type[litestar.Controller]]] = []
 
     def __init__(self) -> None:
         self._startup_hooks: list[startup_hook] = []
@@ -28,9 +27,6 @@ class CommonABC(ABC):
         self._litestar_http_route_handlers: list[litestar.handlers.HTTPRouteHandler] = []
         self._litestar_http_controllers: list[litestar.types.ControllerRouterHandler] = []
         self._litestar_listeners: list[litestar.events.EventListener] = []
-
-        # register controller classes
-        self._litestar_http_controllers.extend(self.__http_controllers__)
 
         self._collect_decorated_functions()
 
@@ -83,12 +79,6 @@ class ExtensionABC(CommonABC):
         if ServiceABC in cls.__mro__:  # pragma: no cover
             return
         ExtensionABC._extension_classes.add(cls)
-
-    def register_http_controller(
-        self,
-        controller: litestar.types.ControllerRouterHandler,
-    ) -> None:
-        self._litestar_http_controllers.append(controller)
 
 
 CommonABCT = TypeVar("CommonABCT", bound=CommonABC)
