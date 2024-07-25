@@ -10,6 +10,7 @@ from aio_microservice.core.abc import (
     CommonABC,
     CommonABCT,
     ExtensionABC,
+    litestar_on_app_init,
     startup_message,
 )
 
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterable
 
     from graphql import ExecutionResult as GraphQLExecutionResult
+    from litestar.config.app import AppConfig
     from strawberry import Schema
     from strawberry.types import ExecutionResult
     from strawberry.types.graphql import OperationType
@@ -102,7 +104,11 @@ class GraphqlExtension(ExtensionABC):
 
     def __init__(self) -> None:
         self.graphql = GraphqlImpl(service=self)
-        self.register_http_controller(self.graphql._graphql_controller)
+
+    @litestar_on_app_init
+    def graphql_litestar_on_app_init(self, app_config: AppConfig) -> AppConfig:
+        app_config.route_handlers.append(self.graphql._graphql_controller)
+        return app_config
 
     @startup_message
     async def _graphql_startup_message(self) -> str:

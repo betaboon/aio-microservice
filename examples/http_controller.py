@@ -1,8 +1,7 @@
-from typing import ClassVar
-
+from litestar.config.app import AppConfig
 from pydantic import BaseModel, Field
 
-from aio_microservice import Service, ServiceSettings, http
+from aio_microservice import Service, ServiceSettings, http, litestar_on_app_init
 from aio_microservice.http import Controller
 
 
@@ -27,7 +26,10 @@ class MyController(Controller):
 
 
 class MyService(Service[ServiceSettings]):
-    __http_controllers__: ClassVar = [MyController]
+    @litestar_on_app_init
+    def my_litestar_on_app_init(self, app_config: AppConfig) -> AppConfig:
+        app_config.route_handlers.append(MyController)
+        return app_config
 
 
 if __name__ == "__main__":

@@ -15,7 +15,6 @@ if TYPE_CHECKING:
 class CommonABC(ABC):
     __version__: ClassVar[str] = "1.0.0"
     __description__: ClassVar[str] = ""
-    __http_controllers__: ClassVar[list[type[litestar.Controller]]] = []
 
     def __init__(self) -> None:
         self._startup_hooks: list[startup_hook] = []
@@ -24,16 +23,14 @@ class CommonABC(ABC):
         self._readiness_probes: list[readiness_probe] = []
         self._liveness_probes: list[liveness_probe] = []
         self._startup_messages: list[startup_message] = []
+        self._litestar_on_app_init: list[litestar_on_app_init] = []
         self._litestar_http_route_handlers: list[litestar.handlers.HTTPRouteHandler] = []
         self._litestar_http_controllers: list[litestar.types.ControllerRouterHandler] = []
         self._litestar_listeners: list[litestar.events.EventListener] = []
 
-        # register controller classes
-        self._litestar_http_controllers.extend(self.__http_controllers__)
-
         self._collect_decorated_functions()
 
-    def _collect_decorated_functions(self) -> None:
+    def _collect_decorated_functions(self) -> None:  # noqa: C901
         for _, attribute in inspect.getmembers(self.__class__):
             if isinstance(attribute, startup_hook):
                 self._startup_hooks.append(attribute)
@@ -47,6 +44,8 @@ class CommonABC(ABC):
                 self._liveness_probes.append(attribute)
             elif isinstance(attribute, startup_message):
                 self._startup_messages.append(attribute)
+            elif isinstance(attribute, litestar_on_app_init):
+                self._litestar_on_app_init.append(attribute)
             elif isinstance(attribute, litestar.handlers.HTTPRouteHandler):
                 self._litestar_http_route_handlers.append(attribute)
             elif isinstance(attribute, litestar.events.EventListener):
@@ -80,12 +79,6 @@ class ExtensionABC(CommonABC):
         if ServiceABC in cls.__mro__:  # pragma: no cover
             return
         ExtensionABC._extension_classes.add(cls)
-
-    def register_http_controller(
-        self,
-        controller: litestar.types.ControllerRouterHandler,
-    ) -> None:
-        self._litestar_http_controllers.append(controller)
 
 
 CommonABCT = TypeVar("CommonABCT", bound=CommonABC)
@@ -152,3 +145,18 @@ class startup_message:  # noqa: N801
 
     async def __call__(self, service: CommonABCT) -> str:
         return await self.fn(service)
+
+
+class litestar_on_app_init:  # noqa: N801
+    def __init__(
+        self,
+        fn: Callable[[CommonABCT, litestar.config.app.AppConfig], litestar.config.app.AppConfig],
+    ) -> None:
+        self.fn = fn
+
+    def __call__(
+        self,
+        service: CommonABCT,
+        app_config: litestar.config.app.AppConfig,
+    ) -> litestar.config.app.AppConfig:
+        return self.fn(service, app_config)

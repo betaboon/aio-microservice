@@ -27,37 +27,6 @@ if typing.TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
 
-class HttpCorsSettings(BaseModel):
-    allow_origins: str = Field(
-        default="*",
-        description="Comma separated list of allowed origins.",
-    )
-    allow_methods: str = Field(
-        default="*",
-        description="Comma separated list of allowed methods.",
-    )
-    allow_headers: str = Field(
-        default="*",
-        description="Comma separated list of allowed headers.",
-    )
-    allow_credentials: bool = Field(
-        default=False,
-        description="Whether or not to set 'Access-Control-Allow-Credentials'.",
-    )
-    allow_origin_regex: str | None = Field(
-        default=None,
-        description="Regex of allowed origins.",
-    )
-    expose_headers: str = Field(
-        default="",
-        description="Comma separated list of headers set in the 'Access-Control-Expose-Headers'.",
-    )
-    max_age: int = Field(
-        default=600,
-        description="Response cache TTL in seconds.",
-    )
-
-
 class HttpSettings(BaseModel):
     host: str = Field(
         default="localhost",
@@ -71,7 +40,6 @@ class HttpSettings(BaseModel):
         default=5,
         description="Close Keep-Alive connections if no new data is received within this timeout.",
     )
-    cors: HttpCorsSettings = HttpCorsSettings()
 
 
 class ServiceSettings(BaseModel):
@@ -105,6 +73,9 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
     @property
     def litestar_app(self) -> litestar.Litestar:
         return self._litestar_app
+
+    def _get_litestar_on_app_init(self) -> list[litestar.types.OnAppInitHandler]:
+        return [partial(fn, self) for fn in self._litestar_on_app_init]
 
     def _get_litestar_on_startup(self) -> list[litestar.types.LifespanHook]:
         fns: list[litestar.types.LifespanHook] = [partial(fn, self) for fn in self._startup_hooks]
@@ -165,23 +136,14 @@ class Service(Generic[ServiceSettingsT], ServiceABC):
             enabled_endpoints={"openapi.json", "openapi.yaml", "openapi.yml"},
             openapi_controller=OpenAPIController,
         )
-        cors_config = litestar.config.cors.CORSConfig(
-            allow_origins=self.settings.http.cors.allow_origins.split(","),
-            allow_methods=self.settings.http.cors.allow_methods.split(","),  # type: ignore[arg-type]
-            allow_headers=self.settings.http.cors.allow_headers.split(","),
-            allow_credentials=self.settings.http.cors.allow_credentials,
-            allow_origin_regex=self.settings.http.cors.allow_origin_regex,
-            expose_headers=self.settings.http.cors.expose_headers.split(","),
-            max_age=self.settings.http.cors.max_age,
-        )
         return litestar.Litestar(
+            on_app_init=self._get_litestar_on_app_init(),
             on_startup=self._get_litestar_on_startup(),
             on_shutdown=self._get_litestar_on_shutdown(),
             lifespan=self._get_litestar_lifespan(),
             route_handlers=self._get_litestar_route_handlers(),
             listeners=self._litestar_listeners,
             openapi_config=openapi_config,
-            cors_config=cors_config,
         )
 
     def _create_uvicorn_server(self, litestar_app: litestar.Litestar) -> uvicorn.Server:
