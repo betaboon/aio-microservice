@@ -53,6 +53,7 @@ amqp = [
 all = [
     "aio-microservice[amqp]",
     "aio-microservice[graphql]",
+    "aio-microservice[prometheus]",
     "aio-microservice[s3]",
     "aio-microservice[scheduler]",
 ]
@@ -65,6 +66,10 @@ scheduler = [
 graphql = [
     "strawberry-graphql>=0.235.0",
     "websockets>=12.0",
+]
+prometheus = [
+    "litestar[prometheus]>=2.9.1",
+    "prometheus-client>=0.20.0",
 ]
 
 [project.urls]
