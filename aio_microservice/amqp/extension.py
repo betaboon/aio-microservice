@@ -16,6 +16,7 @@ from typing_extensions import Concatenate, ParamSpec
 from aio_microservice.amqp.asyncapi import make_asyncapi_controller
 from aio_microservice.core.abc import (
     ExtensionABC,
+    litestar_on_app_init,
     readiness_probe,
     shutdown_hook,
     startup_hook,
@@ -35,6 +36,7 @@ if TYPE_CHECKING:
     from faststream.rabbit.message import RabbitMessage
     from faststream.rabbit.schemas import ReplyConfig
     from faststream.types import AnyDict
+    from litestar.config.app import AppConfig
 
 
 class AmqpSettings(BaseModel):
@@ -136,7 +138,11 @@ class AmqpExtension(ExtensionABC):
 
     def __init__(self, settings: AmqpExtensionSettings) -> None:
         self.amqp = AmqpExtensionImpl(service=self, settings=settings.amqp)
-        self.register_http_controller(self.amqp._asyncapi_controller)
+
+    @litestar_on_app_init
+    def amqp_litestar_on_app_init(self, app_config: AppConfig) -> AppConfig:
+        app_config.route_handlers.append(self.amqp._asyncapi_controller)
+        return app_config
 
     @startup_message
     async def _amqp_startup_message(self) -> str:
