@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "all", "amqp", "docs", "linting", "s3", "scheduler", "testing", "graphql"]
+groups = ["default", "all", "amqp", "docs", "linting", "s3", "scheduler", "testing", "graphql", "prometheus"]
 strategy = ["cross_platform"]
-lock_version = "4.4.1"
-content_hash = "sha256:b827664a0472a3efdd49080ac39f303ee2db947d6f0be96cace38b2f71fb41f6"
+lock_version = "4.4.2"
+content_hash = "sha256:a136b88f6109a5b3bd70cd44605c5932c10f7f9011e7ade285f93b5c47caa868"
 
 [[package]]
 name = "aio-pika"
@@ -747,6 +747,21 @@ files = [
 ]
 
 [[package]]
+name = "litestar"
+version = "2.9.1"
+extras = ["prometheus"]
+requires_python = "<4.0,>=3.8"
+summary = "Litestar - A production-ready, highly performant, extensible ASGI API Framework"
+dependencies = [
+    "litestar==2.9.1",
+    "prometheus-client",
+]
+files = [
+    {file = "litestar-2.9.1-py3-none-any.whl", hash = "sha256:fe3e4ec91a9c24af652775fed5fa4d789902f165cabbd7d2e62821fec1f69462"},
+    {file = "litestar-2.9.1.tar.gz", hash = "sha256:7c13bb4dd7b1c77f6c462262cfe401ca6429eab3e4d98f38586b68268bd5ac97"},
+]
+
+[[package]]
 name = "loguru"
 version = "0.7.2"
 requires_python = ">=3.5"
@@ -1120,6 +1135,16 @@ dependencies = [
 files = [
     {file = "pre_commit-3.7.1-py2.py3-none-any.whl", hash = "sha256:fae36fd1d7ad7d6a5a1c0b0d5adb2ed1a3bda5a21bf6c3e5372073d7a11cd4c5"},
     {file = "pre_commit-3.7.1.tar.gz", hash = "sha256:8ca3ad567bc78a4972a3f1a477e94a79d4597e8140a6e0b651c5e33899c3654a"},
+]
+
+[[package]]
+name = "prometheus-client"
+version = "0.20.0"
+requires_python = ">=3.8"
+summary = "Python client for the Prometheus monitoring system."
+files = [
+    {file = "prometheus_client-0.20.0-py3-none-any.whl", hash = "sha256:cde524a85bce83ca359cc837f28b8c0db5cac7aa653a588fd7e84ba061c329e7"},
+    {file = "prometheus_client-0.20.0.tar.gz", hash = "sha256:287629d00b147a32dcb2be0b9df905da599b2d82f80377083ec8463309a4bb89"},
 ]
 
 [[package]]
